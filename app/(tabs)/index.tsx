@@ -34,12 +34,14 @@ export default function Index() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     //justifyContent: 'center',
+    //testing123
   },
   text: {
     color: '#000000',
