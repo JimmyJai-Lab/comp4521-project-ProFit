@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 
-export default function FitnessScreen() {
+export default function DietScreen() {
   return (
     <View style={styles.container}>
       <CalendarStrip
@@ -23,7 +23,7 @@ export default function FitnessScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:{
+  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },

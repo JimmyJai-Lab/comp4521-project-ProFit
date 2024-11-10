@@ -8,12 +8,14 @@ export default function Index() {
   const [password, setPassword] = React.useState('');
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Login Screen</Text>
+      <Text style={styles.profit}>ProFit</Text>
+      <Text style={styles.text}>Login</Text>
       <View style={styles.inputBox}>
         <TextInput
           label="Email"
           value={email}
           onChangeText={setEmail}
+          left={<TextInput.Icon icon="email" />}
         />
       </View>
       <View style={styles.inputBox}>
@@ -21,11 +23,12 @@ export default function Index() {
           label="Password"
           value={password}
           onChangeText={setPassword}
+          left={<TextInput.Icon icon="lock" />}
+          right={<TextInput.Icon icon="eye" />}
         />
       </View>
       <View style={styles.footerContainer}>
         <Button theme = "primary" label="Login" />
-        <Button label="Use this photo" />
       </View>
     </View>
   );
@@ -34,23 +37,34 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    justifyContent: 'center',
+    //justifyContent: 'center',
   },
   text: {
-    color: '#fff',
+    color: '#000000',
+    paddingBottom: 20,
+    fontSize: 30,
+    fontWeight: "bold"
+  },
+  profit: {
+    color: '#cac7ff',
+    padding: 60,
+    fontSize: 50,
+    fontWeight: "bold"
   },
   button: {
     fontSize: 20,
     textDecorationLine: 'underline',
-    color: '#fff',
+    color: '#000000',
   },
   footerContainer: {
     flex: 1 / 10,
+    padding: 10,
   },
   inputBox: {
     flex: 1 / 10,
     width: '80%',
+    padding: 10,
   },
 });

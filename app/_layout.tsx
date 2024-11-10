@@ -5,14 +5,14 @@ import { useEffect } from "react";
 export default function RootLayout() {
   useEffect(() => {
     setTimeout(() => {
-      setStatusBarStyle("light");
+      setStatusBarStyle("dark");
     }, 0);
   }, []);
 
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" /> 
+      <Stack.Screen name="(tabs)" options={{ headerShown: false}}/>
+      <Stack.Screen name="+not-found"/> 
     </Stack>
   );
 }

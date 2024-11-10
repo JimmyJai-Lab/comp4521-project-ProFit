@@ -1,5 +1,6 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { router } from 'expo-router';
 
 type Props = {
   label: string;
@@ -11,10 +12,10 @@ export default function Button({ label, theme }: Props) {
         return (
             <View style={[styles.buttonContainer,
                 { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },]}>
-            <Pressable style={[styles.button, , { backgroundColor: '#fff' }]} onPress={() => alert('You pressed a button.')}>
-                <FontAwesome name="picture-o" size={18} color="#25292e" style={styles.buttonIcon} />
-                <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
-            </Pressable>
+              <Pressable style={[styles.button, , { backgroundColor: '#fff' }]} onPress={() => router.navigate("/fitness")}>
+                  <MaterialIcons name="login" size={24} color="black" paddingRight={20} />
+                  <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
+              </Pressable>
             </View>
         );
     }
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
   },
   buttonLabel: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
