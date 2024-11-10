@@ -1,5 +1,5 @@
-import FoodSearchService from "@/services/foodapi";
-import FoodItem from "@/services/FoodItem";
+import FoodSearchService from "@/services/food/FoodSearch";
+import FoodItem from "@/services/food/FoodItem";
 import { useEffect, useState } from "react";
 import { Button, ScrollView, Text, TextInput, View } from "react-native";
 
@@ -7,7 +7,6 @@ export default function Index() {
   const [searchText, setSearchText] = useState("");
   const [foodItems, setFoodItems] = useState<Array<FoodItem>>([]);
 
-  // FoodSearchService.searchBrandedFoods()
   const fetchFoodItems = async () => {
     const foodItems = await FoodSearchService.searchBrandedFoods(searchText, 10);
     setFoodItems(foodItems);
