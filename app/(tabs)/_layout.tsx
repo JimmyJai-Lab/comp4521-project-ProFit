@@ -33,6 +33,7 @@ export default function TabLayout() {
         ),
       }} />
       <Tabs.Screen name="diet" options={{ 
+        headerShown: false,
         title: 'Diet', 
         tabBarIcon: ({ color, focused }) => (
           <Ionicons name={focused ? 'fast-food' : 'fast-food-outline'} color={color} size={24}/>
