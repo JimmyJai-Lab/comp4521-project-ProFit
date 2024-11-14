@@ -12,7 +12,11 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false}}/>
-      <Stack.Screen name="+not-found"/> 
+      <Stack.Screen name="+not-found"/>
+      <Stack.Screen name="addmeal" options={{ 
+        title: 'Add Meal',
+        headerTitleAlign:'center',
+      }} />
     </Stack>
   );
 }

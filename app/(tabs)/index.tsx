@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
   footerContainer: {
     flex: 1 / 10,
     padding: 10,
+    margin:50,
   },
   inputBox: {
     flex: 1 / 10,

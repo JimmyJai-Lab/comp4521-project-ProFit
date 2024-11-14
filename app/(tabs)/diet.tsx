@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Progress from 'react-native-progress';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import React, { useState } from 'react';
-
+import NutrientItem from '@/components/NutrientItem';
 
 
 
@@ -14,7 +14,10 @@ import React, { useState } from 'react';
 export default function DietScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
-  
+  // Micro-nutrients state
+  const [protein, setProtein] = useState(80); // Example current intake
+  const [carbs, setCarbs] = useState(150); // Example current intake
+  const [fats, setFats] = useState(60); // Example current intake 
   
   const [calories, setCalories] = useState<number | null>(2500);
   const [inputValue, setInputValue] = useState<string>(''); // Temporary storage for input
@@ -54,12 +57,12 @@ export default function DietScreen() {
      />
      
      {/* Middle part with two containers */}
-     <ScrollView>
+     <ScrollView nestedScrollEnabled = {true}>
      <View style={styles.middleContainer}>
         {/* Left Container */}
         <View style={styles.leftContainer}>
           <View>
-            <View style={{flexDirection:'row'}}>
+            <View style={{flexDirection:'row',alignSelf:'center'}}>
               <TouchableOpacity style={styles.smallbutton } >
                 <TextInput 
                 style={{fontWeight:'bold',color: 'white',paddingBottom:2}} 
@@ -116,7 +119,16 @@ export default function DietScreen() {
         {/* Right Container */}
         
         <View style={styles.rightContainer}>
+         <ScrollView nestedScrollEnabled = {true}>
+          <Text style={{alignSelf:'center',fontSize:18,fontWeight:'bold',color:'white'}}>Micro-Nutrients</Text>
+          <NutrientItem item={{name:'Protein',value:20,total:150,}} />
+          <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
+          <NutrientItem item={{name:'Fats',value:35,total:80,}} />
+          <NutrientItem item={{name:'Protein',value:20,total:150,}} />
+          <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
+          <NutrientItem item={{name:'Fats',value:35,total:80,}} />
           
+          </ScrollView>
         </View>
       </View>
 
@@ -124,7 +136,7 @@ export default function DietScreen() {
       <View style={styles.textContainer}>
             <Text style={{color:'#1c438b',fontWeight:'bold',fontSize:20,alignSelf:'center'}}>Today's Meal</Text>
             <View >
-              <TouchableOpacity style={styles.button } onPress={() => navigation.navigate('profile')}>
+              <TouchableOpacity style={styles.button } onPress={() => navigation.navigate('addmeal')}>
                 <Text style={{fontWeight:'bold',fontSize:15,color: 'white',}}>Add Meal</Text>
               </TouchableOpacity>
             </View>
@@ -236,4 +248,8 @@ const styles = StyleSheet.create({
     alignSelf:'center',
     padding:10,
   },
+  nutrientEle:{
+    marginVertical:5,
+  },
+  
 });
