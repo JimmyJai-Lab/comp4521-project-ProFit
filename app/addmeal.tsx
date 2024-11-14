@@ -8,6 +8,8 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { withDecay } from 'react-native-reanimated';
 import AddFoodItem from '@/components/AddFoodItem';
+import { router } from 'expo-router';
+
 
 export class App extends React.Component {
   state = {
@@ -39,7 +41,7 @@ export class App extends React.Component {
 }
 
 export default function CommunityScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  //const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     
     return (
@@ -61,7 +63,7 @@ export default function CommunityScreen() {
         
         
         {/* Right Buttons*/}
-        <TouchableOpacity style={styles.functionBox} onPress={() => navigation.navigate('addmeal_api')}>
+        <TouchableOpacity style={styles.functionBox} onPress={() => router.navigate('addmeal_api')}>
         <MaterialIcons name="assignment-add" size={60} color="black" style={{flex:1,alignSelf:'center',paddingLeft:10}}/>
         <Text style={{fontSize:25,color:'white',flex:1,alignSelf:'center',fontWeight:'bold'}}>Add Item</Text>      
         </TouchableOpacity>
