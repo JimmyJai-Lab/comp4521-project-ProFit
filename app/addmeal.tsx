@@ -1,5 +1,4 @@
 import {useNavigation,ParamListBase} from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Progress from 'react-native-progress';
 import React, { useState } from 'react';
 import { Text, View, StyleSheet,TouchableOpacity,ScrollView,Image} from 'react-native';
@@ -33,7 +32,7 @@ export class App extends React.Component {
         containerStyle={{minHeight:0,height:47}}
         inputStyle={{
           minHeight: 0,
-          
+          fontSize:10          
         }}
       />
     );
@@ -63,7 +62,7 @@ export default function CommunityScreen() {
         
         
         {/* Right Buttons*/}
-        <TouchableOpacity style={styles.functionBox} onPress={() => router.navigate('addmeal_api')}>
+        <TouchableOpacity style={styles.functionBox} onPress={() => router.navigate('/addmeal_api')}>
         <MaterialIcons name="assignment-add" size={60} color="black" style={{flex:1,alignSelf:'center',paddingLeft:10}}/>
         <Text style={{fontSize:25,color:'white',flex:1,alignSelf:'center',fontWeight:'bold'}}>Add Item</Text>      
         </TouchableOpacity>

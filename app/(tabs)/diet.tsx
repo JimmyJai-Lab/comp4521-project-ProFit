@@ -1,7 +1,6 @@
 import { Text, View, StyleSheet, Button,ScrollView,TouchableOpacity,TextInput,Alert,Platform } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
 import {useNavigation,ParamListBase} from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Progress from 'react-native-progress';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import React, { useState } from 'react';
@@ -137,7 +136,7 @@ export default function DietScreen() {
       <View style={styles.textContainer}>
             <Text style={{color:'#1c438b',fontWeight:'bold',fontSize:20,alignSelf:'center'}}>Today's Meal</Text>
             <View >
-              <TouchableOpacity style={styles.button } onPress={() => router.navigate('addmeal')}>
+              <TouchableOpacity style={styles.button } onPress={() => router.navigate('/addmeal')}>
                 <Text style={{fontWeight:'bold',fontSize:15,color: 'white',}}>Add Meal</Text>
               </TouchableOpacity>
             </View>

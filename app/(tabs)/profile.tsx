@@ -5,7 +5,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Proflie screen</Text>
-      <Link href="/" style={styles.button}>
+      <Link href="/(tabs)/profile" style={styles.button}>
         Logout
       </Link>
     </View>
