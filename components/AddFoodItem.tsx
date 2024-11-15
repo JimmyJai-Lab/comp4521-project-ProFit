@@ -16,10 +16,10 @@ const AddFoodItem = ({ item }: {item:any}) => {
         <Text style={{fontWeight:'bold',fontSize:20,color:'#1c438b',marginVertical:5}}>{item.cal} Cals</Text>
         </View>
 
-        <View style={{backgroundColor:'transparent',width:100}}>
-        <View style={{alignSelf:'center',flexDirection:'row',width:100,backgroundColor:'#ffc332',marginHorizontal:10,borderRadius:10,alignItems:'center',marginBottom:10}}>
+        <View style={{backgroundColor:'transparent',width:100,marginLeft:5}}>
+        <View style={{alignSelf:'center',flexDirection:'row',width:100,backgroundColor:'#ffc332',marginHorizontal:0,borderRadius:10,alignItems:'center',marginBottom:10}}>
         <TouchableOpacity style={{marginHorizontal:5, backgroundColor:'#ffedc1',borderRadius:10,width:50,marginVertical:5,alignItems:'center',flex:1,}}> 
-            <Text style={{color:'#1c438b',fontSize:20,textAlignVertical:'center',textAlign:'center'}}>+</Text>
+            <Text style={{color:'#1c438b',fontSize:20,textAlignVertical:'center',textAlign:'center',alignSelf:'center',marginBottom:2}}>+</Text>
         </TouchableOpacity>
 
         <Text style={{marginHorizontal:5, borderRadius:10,width:50,margin:5,flex:1,textAlign:'center'}}>{amount}</Text>
@@ -46,11 +46,13 @@ const AddFoodItem = ({ item }: {item:any}) => {
 const styles = StyleSheet.create({
     container: {
         height:120,
+        width:330,
         backgroundColor: 'white',
         margin:10,
         borderRadius:15,
         alignItems:'center',
         flexDirection:'row',
+        alignSelf:'center'
       },
 
 })
