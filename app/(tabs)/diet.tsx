@@ -45,15 +45,15 @@ export default function DietScreen() {
         calendarAnimation={{type: 'sequence', duration: 30}}
         daySelectionAnimation={{type: 'border', duration: 200, borderWidth: 1, borderHighlightColor: 'white'}}
         style={{height: 100, paddingTop: 30, paddingBottom: 10}}
-        calendarHeaderStyle={{color: 'white'}}
+        calendarHeaderStyle={{color: 'white',fontSize:10}}
         calendarColor={'#7743CE'}
-        dateNumberStyle={{color: 'white'}}
-        dateNameStyle={{color: 'white'}}
-        highlightDateNumberStyle={{color: 'yellow'}}
-        highlightDateNameStyle={{color: 'yellow'}}
-        disabledDateNameStyle={{color: 'grey'}}
-        disabledDateNumberStyle={{color: 'grey'}}
-        iconContainer={{flex: 0.1}}
+        dateNumberStyle={{color: 'white',fontSize:10}}
+        dateNameStyle={{color: 'white',fontSize:10}}
+        highlightDateNumberStyle={{color: 'yellow',fontSize:10}}
+        highlightDateNameStyle={{color: 'yellow',fontSize:10}}
+        disabledDateNameStyle={{color: 'grey',fontSize:10}}
+        disabledDateNumberStyle={{color: 'grey',fontSize:10}}
+        iconContainer={{flex: 0.1,fontSize:10}}
      />
      
      {/* Middle part with two containers */}
