@@ -1,8 +1,8 @@
 import axios from "axios";
 import FoodItem, { Macros } from "./FoodItem";
+import { USDA_FOOD_API_KEY } from "../../config/config";
 
 const USDA_BASE_URL = "https://api.nal.usda.gov/fdc/v1";
-const USDA_FOOD_API_KEY = "DEMO_KEY";
 
 interface IFoodSearchService {
   searchBrandedFoods: (
