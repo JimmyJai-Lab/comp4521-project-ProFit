@@ -3,3 +3,5 @@ Generate API Key for USDA API here: https://fdc.nal.usda.gov/api-key-signup.html
 export const USDA_FOOD_API_KEY = 'YOUR_API_KEY';
 ```
 or use the key "DEMO_KEY" for limited usage.
+
+Exercise database (excel spreadsheet): https://strengthtoovercome.com/functional-fitness-exercise-database
