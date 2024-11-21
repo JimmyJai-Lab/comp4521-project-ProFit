@@ -76,14 +76,14 @@ export default function Index() {
       </View>
       <View style={{flexDirection: 'row', alignItems: 'center', flex: 0.1}}>
         <View>
-          <Button  label="Login using Google"/>
+          <Button  theme = "google" label="Login using Google"/>
         </View>
         <View>
-          <Button  label="Login using Facebook"/>
+          <Button  theme = "facebook" label="Login using Facebook"/>
         </View>
       </View>
       <View style={{flexDirection: 'row', alignItems: 'center', flex: 0.1, padding: 40}}>
-        <Button theme="primary" label="Sign up"/>
+        <Button theme="signup" label="Sign up"/>
       </View>
       
     </View>
