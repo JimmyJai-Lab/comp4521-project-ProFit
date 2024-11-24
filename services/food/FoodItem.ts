@@ -15,6 +15,7 @@ export default class FoodItem {
   servings: number;
   calories: number;
   macros: Macros;
+  source: string;
 
   constructor(
     name: string,
@@ -26,5 +27,6 @@ export default class FoodItem {
     this.servings = servings;
     this.calories = calories;
     this.macros = macros;
+    this.source = "USDA";
   }
 }

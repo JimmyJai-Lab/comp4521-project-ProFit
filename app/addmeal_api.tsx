@@ -1,43 +1,43 @@
-import { Text, View, StyleSheet } from 'react-native';
-import AddFoodItem from '@/components/AddFoodItem';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import { SearchBar } from '@rneui/themed';
-import React, { useState } from 'react';
-
-export class App extends React.Component {
-  state = {
-    search: '',
-  };
-
-  updateSearch = (search: any) => {
-    this.setState({ search });
-  };
-
-  render() {
-    const { search } = this.state;
-
-    return (
-      <SearchBar
-        placeholder="Search for Previous Foods Here ..."
-        onChangeText={this.updateSearch}
-        value={search}
-        lightTheme={true}
-        inputContainerStyle={{height:10,backgroundColor:'#d1d0d0'}}
-        containerStyle={{minHeight:0,height:47}}
-        inputStyle={{
-          minHeight: 0,
-          fontSize:10          
-        }}
-      />
-    );
-  }
-}
+import { useState } from 'react';
+import foodSearchService from '@/services/food/FoodSearch';
+import FoodItem from '@/services/food/FoodItem';
+import AddFoodItem from '@/components/AddFoodItem';
 
 export default function MealAPI() {
+  const [search, setSearch] = useState('');
+  const [foodItems, setFoodItems] = useState<Array<FoodItem>>([]);
+
+  const updateSearch = (search: any) => {
+    setSearch(search);
+  };
+
+  const searchFood = async (searchQuery: string) => {
+    const foodItems = await foodSearchService.searchBrandedFoods(searchQuery, 10);
+    setFoodItems(foodItems);
+  }
+
   return (
-    <View >
-      <App></App>
-      <AddFoodItem item={{name:'Burger',source:'Someone',cal:78,}} />  
-      <AddFoodItem item={{name:'Burger',source:'Someone',cal:78,}} />  
+    <View>
+      <SearchBar
+        placeholder="Search for Previous Foods Here ..."
+        onChangeText={updateSearch}
+        value={search}
+        lightTheme={true}
+        inputContainerStyle={{ height: 10, backgroundColor: "#d1d0d0" }}
+        containerStyle={{ minHeight: 0, height: 47 }}
+        inputStyle={{
+          minHeight: 0,
+          fontSize: 10,
+        }}
+        onSubmitEditing={() => searchFood(search)}
+      />
+      <ScrollView>
+        {foodItems.map((item, index) => (
+          <AddFoodItem key={index} item={item} />
+        ))}
+      </ScrollView>
     </View>
   );
 }

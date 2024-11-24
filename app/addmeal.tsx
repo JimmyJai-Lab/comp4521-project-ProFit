@@ -44,37 +44,81 @@ export default function CommunityScreen() {
 
     
     return (
-      
-      <View > 
-        {/* Search Bar*/}  
+      <View>
+        {/* Search Bar*/}
         <App></App>
 
-        {/* Middle Buttons*/} 
-        <View style={{flexDirection:'row',alignSelf:'center',alignItems:'center'}}>
-        
-        
-        {/* Left Buttons*/}
-        <TouchableOpacity style={styles.functionBox}>
-        <MaterialCommunityIcons name="line-scan" size={60} color="black" style={{flex:1,alignSelf:'center',paddingLeft:10}}/>  
-        <Text style={{fontSize:25,color:'white',flex:1,alignSelf:'center',fontWeight:'bold'}}>Scan</Text>      
-        </TouchableOpacity>
-        
-        
-        
-        {/* Right Buttons*/}
-        <TouchableOpacity style={styles.functionBox} onPress={() => router.navigate('/addmeal_api')}>
-        <MaterialIcons name="assignment-add" size={60} color="black" style={{flex:1,alignSelf:'center',paddingLeft:10}}/>
-        <Text style={{fontSize:25,color:'white',flex:1,alignSelf:'center',fontWeight:'bold'}}>Add Item</Text>      
-        </TouchableOpacity>
+        {/* Middle Buttons*/}
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "center",
+            alignItems: "center",
+          }}
+        >
+          {/* Left Buttons*/}
+          <TouchableOpacity style={styles.functionBox}>
+            <MaterialCommunityIcons
+              name="line-scan"
+              size={60}
+              color="black"
+              style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
+            />
+            <Text
+              style={{
+                fontSize: 25,
+                color: "white",
+                flex: 1,
+                alignSelf: "center",
+                fontWeight: "bold",
+              }}
+            >
+              Scan
+            </Text>
+          </TouchableOpacity>
+
+          {/* Right Buttons*/}
+          <TouchableOpacity
+            style={styles.functionBox}
+            onPress={() => router.navigate("/addmeal_api")}
+          >
+            <MaterialIcons
+              name="assignment-add"
+              size={60}
+              color="black"
+              style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
+            />
+            <Text
+              style={{
+                fontSize: 25,
+                color: "white",
+                flex: 1,
+                alignSelf: "center",
+                fontWeight: "bold",
+              }}
+            >
+              Add Item
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Bottom History*/} 
-        <Text style={{fontWeight:100,fontStyle:'italic',paddingHorizontal:10,paddingTop:20}}>Previous added items</Text>
+        {/* Bottom History*/}
+        <Text
+          style={{
+            fontWeight: 100,
+            fontStyle: "italic",
+            paddingHorizontal: 10,
+            paddingTop: 20,
+          }}
+        >
+          Previous added items
+        </Text>
         <ScrollView style={styles.bottomContainer}>
           <Text>Test</Text>
-          <AddFoodItem item={{name:'Burger',source:'Someone',cal:78,}} />        
+          <AddFoodItem
+            item={{ name: "Burger", source: "Someone", calories: 78, macros: { protein: 10, fat: 10, carbs: 10 }, servings: 1 }}
+          />
         </ScrollView>
-
       </View>
     );
   }

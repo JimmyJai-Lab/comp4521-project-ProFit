@@ -1,15 +1,10 @@
 import { Text, View, StyleSheet, Button,ScrollView,TouchableOpacity,TextInput,Alert,Platform } from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
-import {useNavigation,ParamListBase} from '@react-navigation/native';
-import * as Progress from 'react-native-progress';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NutrientItem from '@/components/NutrientItem';
 import { router } from 'expo-router';
-
-
-
-
+import FoodItem from '@/services/food/FoodItem';
 
 export default function DietScreen() {
   //const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -21,8 +16,10 @@ export default function DietScreen() {
   
   const [calories, setCalories] = useState<number | null>(2500);
   const [inputValue, setInputValue] = useState<string>(''); // Temporary storage for input
-  const [currentCalories] = useState<number>(1200);
+  const [currentCalories, setCurrentCalories] = useState<number>(1200);
   const [caloriesLeft, setCaloriesLeft] = useState<number >(0);
+
+  const [meals, setMeals] = useState<Array<FoodItem>>([]);
 
   const confirmInput = () => {
     const numericValue = parseInt(inputValue, 10);
@@ -38,6 +35,29 @@ export default function DietScreen() {
       Alert.alert('Invalid Input', 'Please enter a valid number');
     }
   };
+
+  const updateMeals = () => {
+    // update from database
+
+    
+    updateCaloriesAndNutrients();
+  }
+
+  const updateCaloriesAndNutrients = () => {
+    const totalCalories = meals.reduce((acc, meal) => acc + meal.calories, 0);
+    const totalProtein = meals.reduce((acc, meal) => acc + meal.macros.protein, 0);
+    const totalCarbs = meals.reduce((acc, meal) => acc + meal.macros.carbs, 0);
+    const totalFats = meals.reduce((acc, meal) => acc + meal.macros.fat, 0);
+    setCurrentCalories(totalCalories);
+    setProtein(totalProtein);
+    setCarbs(totalCarbs);
+    setFats(totalFats);
+  }
+
+  // 
+  useEffect(() => {
+    updateMeals()
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -75,11 +95,7 @@ export default function DietScreen() {
 
               <TouchableOpacity style={styles.smallbutton } onPress={confirmInput}>
                 <Text style={{fontWeight:'bold',fontSize:15,color: 'white',padding:4}} >Set</Text>
-              </TouchableOpacity>
-
-              
-
-              
+              </TouchableOpacity>  
             </View>
 
             <Text style={{alignItems:'center',alignSelf:'center',fontSize:19,paddingTop:5,paddingBottom:10,color:'#f1f0f0',fontWeight:'bold'}}>
@@ -121,12 +137,9 @@ export default function DietScreen() {
         <View style={styles.rightContainer}>
          <ScrollView nestedScrollEnabled = {true}>
           <Text style={{alignSelf:'center',fontSize:18,fontWeight:'bold',color:'white'}}>Micro-Nutrients</Text>
-          <NutrientItem item={{name:'Protein',value:20,total:150,}} />
-          <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
-          <NutrientItem item={{name:'Fats',value:35,total:80,}} />
-          <NutrientItem item={{name:'Protein',value:20,total:150,}} />
-          <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
-          <NutrientItem item={{name:'Fats',value:35,total:80,}} />
+          <NutrientItem item={{name:'Protein',value:protein,total:150,}} />
+          <NutrientItem item={{name:'Carbs',value:carbs,total:100,}} />
+          <NutrientItem item={{name:'Fats',value:fats,total:80,}} />
           
           </ScrollView>
         </View>
@@ -134,36 +147,23 @@ export default function DietScreen() {
 
       {/* ADD MEAL PART */}
       <View style={styles.textContainer}>
-            <Text style={{color:'#1c438b',fontWeight:'bold',fontSize:20,alignSelf:'center'}}>Today's Meal</Text>
-            <View >
-              <TouchableOpacity style={styles.button } onPress={() => router.navigate('/addmeal')}>
-                <Text style={{fontWeight:'bold',fontSize:15,color: 'white',}}>Add Meal</Text>
-              </TouchableOpacity>
-            </View>
+        <Text style={{color:'#1c438b',fontWeight:'bold',fontSize:20,alignSelf:'center'}}>Today's Meal</Text>
+        <View >
+          <TouchableOpacity style={styles.button } onPress={() => router.navigate('/addmeal')}>
+            <Text style={{fontWeight:'bold',fontSize:15,color: 'white',}}>Add Meal</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      
 
       {/* Bottom Container */}
       <View style={styles.bottomContainer}>
         <Text style={{fontWeight:200,fontSize: 15,marginBottom: 10,}}>Breakfast</Text>
-        <Text>Test</Text>
-        
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+        {}
         <Text style={{fontWeight:200,fontSize: 15,marginTop: 10,marginBottom: 10,}}>Lunch</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+
         <Text style={{fontWeight:200,fontSize: 15,marginTop: 10,marginBottom: 10,}}>Dinner</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+
       </View>
 
 
