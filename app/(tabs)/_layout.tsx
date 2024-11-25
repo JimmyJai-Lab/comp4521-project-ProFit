@@ -26,6 +26,15 @@ export default function TabLayout() {
           <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
         ),
       }} />
+      <Tabs.Screen name="signup" options={{
+        href: null, 
+        headerShown: false,
+        title: 'Signup',
+        tabBarStyle: {display: "none"},
+        tabBarIcon: ({ color, focused }) => (
+          <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+        ),
+      }} />
       <Tabs.Screen name="fitness" options={{ 
         title: 'Fitness', 
         tabBarIcon: ({ color, focused }) => (

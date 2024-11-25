@@ -4,6 +4,8 @@ import * as React from 'react';
 import CalendarStrip from 'react-native-calendar-strip';
 import { FlashList } from "@shopify/flash-list";
 import Checkbox from 'expo-checkbox';
+import { Button } from 'react-native-paper';
+import { router } from 'expo-router';
 import email from './fitness';
 import { ListItemSubtitle } from '@rneui/base/dist/ListItem/ListItem.Subtitle';
 interface Exercises {
@@ -22,7 +24,7 @@ export default function FitnessScreen() {
   const [average_minutes] = React.useState<number>(0);
   const [num_of_sets] = React.useState<number>(0);
   const [volume] = React.useState<number>(0);
-  const DATA = [  
+  const DATA = [
     {
       id: 0,
       name: "chest press",
@@ -126,7 +128,7 @@ export default function FitnessScreen() {
         iconContainer={{flex: 0.1,fontSize:10}}
      />
 
-      <ScrollView>
+      {/* <ScrollView> */}
       <View style={styles.summarycontainer}>
         <View style={{alignItems: 'center'}}>
           <Text style={{fontSize: 30, fontWeight: 'bold'}}>Summary</Text>
@@ -184,13 +186,13 @@ export default function FitnessScreen() {
           <Text style={[styles.heading, {paddingLeft: 20}]}>Today's Exercises</Text>
         </View>
         <View style= {{paddingLeft: 50}}>
-              <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignItems: 'center', justifyContent: 'center'}} onPress={() => alert('You pressed a button.')}>
+              <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignItems: 'center', justifyContent: 'center'}} onPress={() => router.navigate('/addexercise_api')}>
                 <Text style={{fontWeight:'bold',fontSize:20,color: 'black',padding:4}}>Add Set</Text>
               </TouchableOpacity>
         </View>
       </View>
 
-
+      <ScrollView>
       <View style={styles.exercisecontainer}>
         <FlashList
           data={DATA}
@@ -201,6 +203,11 @@ export default function FitnessScreen() {
 
 
       </ScrollView>
+
+      <Button mode="elevated" style ={styles.fab} labelStyle={{padding: 10, fontSize: 20, fontWeight: 'bold'}}>
+        Add Template
+      </Button>
+
     </View>
   );
 }
@@ -211,13 +218,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   summarycontainer:{
-    flex: 1,
+    flex: 6,
     backgroundColor: '#FFC0CB',
     //backgroundColor: '#FFFFFF',
     borderRadius: 10,
   },
   addingcontainer:{
-    flex: 1,
+    flex: 2,
     backgroundColor: '#ADD8E6',
     borderRadius: 10,
   },
@@ -234,5 +241,12 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 25,
     fontWeight: 'bold',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    alignSelf: 'center',
+    bottom: "5%",
+    fontSize: 20,
   },
 });
