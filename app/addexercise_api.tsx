@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import AddExercise from '@/components/AddExercise';
 import { SearchBar } from '@rneui/themed';
 import { TextInput } from "react-native-paper";
@@ -79,7 +79,15 @@ export default function ExerciseAPI() {
         <AddExercise item={DATA[1]}/>
         <AddExercise item={DATA[2]}/>  
         <AddExercise item={DATA[3]}/>     
-      </ScrollView>    
+      </ScrollView>
+      <View style={{flex: 1, flexDirection: 'row'}}>
+        <TouchableOpacity style= {styles.leftbutton} onPress={() => console.log("testing")}>
+          <Text style={{fontWeight:'bold',fontSize:20,color: 'black',padding:4}}>Save Template</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style= {styles.rightbutton} onPress={() => console.log("testing")}>
+          <Text style={{fontWeight:'bold',fontSize:20,color: 'black',padding:4}}>Load Template</Text>
+        </TouchableOpacity>    
+      </View>
     </View>
   );
 }
@@ -92,5 +100,25 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#000000',
+  },
+  leftbutton: {
+    //position: 'absolute',
+    backgroundColor: '#75E6DA', 
+    borderRadius: 20, 
+    height: 80, 
+    width: 150,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    margin: 20,
+  },
+  rightbutton: {
+    //position: 'absolute',
+    backgroundColor: '#75E6DA', 
+    borderRadius: 20, 
+    height: 80, 
+    width: 150,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    margin: 20,
   },
 });
