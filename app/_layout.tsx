@@ -17,6 +17,10 @@ export default function RootLayout() {
         title: 'Add Meal',
         headerTitleAlign:'center',
       }} />
+      <Stack.Screen name="addexercise_api" options={{ 
+        title: 'Add Exercise',
+        headerTitleAlign:'center',
+      }} />
     </Stack>
   );
 }

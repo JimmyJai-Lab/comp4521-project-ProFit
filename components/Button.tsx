@@ -49,11 +49,23 @@ export default function Button({ label, theme }: Props) {
     if (theme === 'signup'){
       return (
       <View style={[styles.buttonContainer,]}>
-        <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
+        <Pressable style={styles.button} onPress={() => router.navigate("/signup")}>
           <Text style={[styles.buttonLabel, { color: '#CBC3E3' , textDecorationLine: 'underline'}]}>{label}</Text>
         </Pressable>
       </View>
       );
+    }
+
+    if (theme === 'register'){
+      return (
+        <View style={[styles.primarybuttonContainer,
+            { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },]}>
+          <Pressable style={[styles.button, , { backgroundColor: '#fff' }]} onPress={() => router.navigate("/")}>
+              <MaterialIcons name="login" size={24} color="black" paddingRight={20} />
+              <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
+          </Pressable>
+        </View>
+    );
     }
 
 
