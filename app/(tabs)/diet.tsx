@@ -6,7 +6,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import React, { useState } from 'react';
 import NutrientItem from '@/components/NutrientItem';
 import { router } from 'expo-router';
-
+import AddTodayMeal from '@/components/AddTodayMeal';
 
 
 
@@ -124,9 +124,7 @@ export default function DietScreen() {
           <NutrientItem item={{name:'Protein',value:20,total:150,}} />
           <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
           <NutrientItem item={{name:'Fats',value:35,total:80,}} />
-          <NutrientItem item={{name:'Protein',value:20,total:150,}} />
-          <NutrientItem item={{name:'Carbs',value:80,total:100,}} />
-          <NutrientItem item={{name:'Fats',value:35,total:80,}} />
+         
           
           </ScrollView>
         </View>
@@ -145,25 +143,13 @@ export default function DietScreen() {
       {/* Bottom Container */}
       <View style={styles.bottomContainer}>
         <Text style={{fontWeight:200,fontSize: 15,marginBottom: 10,}}>Breakfast</Text>
-        <Text>Test</Text>
-        
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+        <AddTodayMeal food={{name:'Egg(Large)',num:2,cals:156}} />
+        <AddTodayMeal food={{name:'Egg(Large)',num:2,cals:156}} />
         <Text style={{fontWeight:200,fontSize: 15,marginTop: 10,marginBottom: 10,}}>Lunch</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+        <AddTodayMeal food={{name:'Egg(Large)',num:2,cals:156}} />
         <Text style={{fontWeight:200,fontSize: 15,marginTop: 10,marginBottom: 10,}}>Dinner</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
-        <Text>Test</Text>
+        <AddTodayMeal food={{name:'Egg(Large)',num:2,cals:156}} />
+        <AddTodayMeal food={{name:'Egg(Large)',num:2,cals:156}} />
       </View>
 
 
@@ -247,6 +233,7 @@ const styles = StyleSheet.create({
     width: 340,
     alignSelf:'center',
     padding:10,
+    
   },
   nutrientEle:{
     marginVertical:5,

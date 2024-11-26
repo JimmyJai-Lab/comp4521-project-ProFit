@@ -2,6 +2,7 @@ import { Tabs, usePathname } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { View } from 'react-native-reanimated/lib/typescript/Animated';
 
 export default function TabLayout() {
   return (
@@ -49,7 +50,10 @@ export default function TabLayout() {
         ),
       }} />
       <Tabs.Screen name="community" options={{ 
-        title: 'Community', 
+        title: 'Community',
+        headerStyle:{height:40},
+        headerTitle:'ProFit',
+        headerTitleAlign: 'center',
         tabBarIcon: ({ color, focused }) => (
           <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={24}/>
         ),

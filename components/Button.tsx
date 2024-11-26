@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 type Props = {
   label: string;
-  theme?: 'primary';
+  theme?: string;
 };
 
 export default function Button({ label, theme }: Props) {
@@ -60,7 +60,7 @@ export default function Button({ label, theme }: Props) {
       return (
         <View style={[styles.primarybuttonContainer,
             { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },]}>
-          <Pressable style={[styles.button, , { backgroundColor: '#fff' }]} onPress={() => router.navigate("/")}>
+          <Pressable style={[styles.button, , { backgroundColor: '#fff' }]} onPress={() => router.navigate("//")}>
               <MaterialIcons name="login" size={24} color="black" paddingRight={20} />
               <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
           </Pressable>

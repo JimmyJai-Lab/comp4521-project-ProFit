@@ -74,7 +74,7 @@ export default function ProfileScreen() {
       </ListItem.Content>
       <ListItem.Chevron />
     </ListItem> */}
-      <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignSelf: 'center',alignItems: 'center', justifyContent: 'center'}} onPress={() => router.replace('/')}>
+      <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignSelf: 'center',alignItems: 'center', justifyContent: 'center'}} onPress={() => router.replace('')}>
         <Text style={{fontWeight:'bold',fontSize:20,color: 'black',padding:4}}>Logout</Text>
       </TouchableOpacity>
     </View>
