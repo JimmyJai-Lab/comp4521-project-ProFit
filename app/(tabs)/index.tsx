@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { TextInput } from "react-native-paper";
-import {LinearGradient} from 'expo-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import Button from '@/components/Button';
 import accountService from '@/services/auth/AccountService';
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { useEffect } from 'react';
+import { router } from 'expo-router';
 
 // export const [email, setEmail] = React.useState('');
 // export const [password, setPassword] = React.useState('');
@@ -14,31 +15,60 @@ import { useEffect } from 'react';
 export default function Index() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [user, setUser] = React.useState<FirebaseAuthTypes.User | null>();
+  const [loading, setLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   // Handle user state changes
   function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
-    setUser(user);
+    if (user) {
+      // User is signed in, navigate to fitness screen
+      router.push("/fitness");
+    }
   }
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    return subscriber;
   }, []);
 
-  const handleLogin = () => {
-    accountService.logInUser(email, password);
-    console.log(user?.email)
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await accountService.logInUser(email.trim(), password);
+      setEmail("");
+      setPassword("");
+    } catch (error: any) {
+      let errorMessage = 'Login failed. Please try again.';
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid email or password';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email';
+      }
+      Alert.alert('Login Error', errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = () => {
+    setEmail("");
+    setPassword("");
+    router.push("/signup");
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.topPadding} />
       <MaskedView
-        style={{ flex: 0.2, flexDirection: "row", height: "100%" }}
+        style={{ flex: 0.4, flexDirection: "row", height: "100%" }}
         maskElement={
           <View
             style={{
-              // Transparent background because mask is based off alpha channel.
               backgroundColor: "transparent",
               flex: 1,
               justifyContent: "center",
@@ -68,23 +98,54 @@ export default function Index() {
       <Text style={styles.text}>Login</Text>
       <View style={styles.inputBox}>
         <TextInput
+          mode="outlined"
           label="Email"
           value={email}
           onChangeText={setEmail}
           left={<TextInput.Icon icon="email" />}
+          style={{ backgroundColor: 'white' }}
+          outlineColor="#702963"
+          activeOutlineColor="#702963"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
       </View>
       <View style={styles.inputBox}>
         <TextInput
+          mode="outlined"
           label="Password"
           value={password}
           onChangeText={setPassword}
+          secureTextEntry={!showPassword}
           left={<TextInput.Icon icon="lock" />}
-          right={<TextInput.Icon icon="eye" />}
+          right={
+            <TextInput.Icon
+              icon={showPassword ? "eye-off" : "eye"}
+              onPress={() => setShowPassword(!showPassword)}
+              forceTextInputFocus={false}
+            />
+          }
+          style={{ backgroundColor: 'white' }}
+          outlineColor="#702963"
+          activeOutlineColor="#702963"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
       </View>
       <View style={styles.footerContainer}>
-        <Button theme="primary" label="Login" />
+        <Button
+          theme="primary"
+          label="Login"
+          onPress={handleLogin}
+          disabled={loading}
+        />
+        <View style={{ height: 10 }} />
+        <Button
+          theme="secondary"
+          label="Sign Up"
+          onPress={handleSignUp}
+          disabled={loading}
+        />
       </View>
       <View style={{ flexDirection: "row", alignItems: "center", flex: 0.25 }}>
         <View style={{ flex: 1, height: 1, backgroundColor: "grey" }} />
@@ -93,59 +154,27 @@ export default function Index() {
         </View>
         <View style={{ flex: 1, height: 1, backgroundColor: "grey" }} />
       </View>
-      <View style={{ flexDirection: "row", alignItems: "center", flex: 0.1 }}>
-        <View>
-          <Button theme="google" label="Login using Google" />
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", flex: 0.2 }}>
+        <View style={{ marginHorizontal: 5 }}>
+          <Button theme="google" label="Login with Google" />
         </View>
-        <View>
-          <Button theme="facebook" label="Login using Facebook" />
+        <View style={{ marginHorizontal: 5 }}>
+          <Button theme="facebook" label="Login with Facebook" />
         </View>
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          flex: 0.1,
-          padding: 40,
-        }}
-      >
-        <Button theme="signup" label="Sign up" />
-      </View>
-      <TouchableOpacity
-        style={{
-          backgroundColor: "#75E6DA",
-          borderRadius: 20,
-          height: 50,
-          width: 100,
-          alignSelf: "center",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onPress={handleLogin}
-      >
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 20,
-            color: "black",
-            padding: 4,
-          }}
-        >
-          Login
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    //justifyContent: 'center',
-    //testing123
+  },
+  topPadding: {
+    height: 40,
+    backgroundColor: '#FFFFFF',
   },
   text: {
     color: '#000000',
@@ -165,9 +194,10 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   footerContainer: {
-    flex: 1 / 10,
+    flex: 1 / 6,
     padding: 10,
-    margin:50,
+    margin: 20,
+    alignItems: 'center',
   },
   inputBox: {
     flex: 1 / 10,
