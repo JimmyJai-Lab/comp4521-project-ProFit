@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import NutrientItem from '@/components/NutrientItem';
 import { router } from 'expo-router';
 import FoodItem from '@/services/food/FoodItem';
+import firestore from '@react-native-firebase/firestore';
 
 export default function DietScreen() {
   //const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -36,11 +37,18 @@ export default function DietScreen() {
     }
   };
 
-  const updateMeals = () => {
+  const updateMeals = async () => {
+    console.log("Updating meals...");
     // update from database
-
+    var users;
+    try {
+      users = await firestore().collection("food_logs").get();
+    } catch (error) {
+      console.log("Error getting documents: ", error);
+    }
+    console.log(users?.docs);
     
-    updateCaloriesAndNutrients();
+    // updateCaloriesAndNutrients();
   }
 
   const updateCaloriesAndNutrients = () => {
@@ -53,11 +61,6 @@ export default function DietScreen() {
     setCarbs(totalCarbs);
     setFats(totalFats);
   }
-
-  // 
-  useEffect(() => {
-    updateMeals()
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -165,7 +168,20 @@ export default function DietScreen() {
         <Text style={{fontWeight:200,fontSize: 15,marginTop: 10,marginBottom: 10,}}>Dinner</Text>
 
       </View>
-
+        
+      <Button title='fetch' onPress={updateMeals}></Button>
+      <Button title='add' onPress={async () => {
+        const foodItem = {
+          name: 'test',
+          calories: 100,
+          macros: {
+            protein: 10,
+            carbs: 20,
+            fat: 5,
+          },
+        };
+        await firestore().collection("food_logs").add(foodItem);
+      }}></Button>
 
       </ScrollView>
 
