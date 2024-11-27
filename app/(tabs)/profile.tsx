@@ -2,11 +2,17 @@ import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Avatar, Button, DataTable, List } from 'react-native-paper';
 import { ListItem, Icon } from '@rneui/themed';
+import accountService from '@/services/auth/AccountService';
 const age = 18;
 const height = 175;
 const weight = 70;
 
 export default function ProfileScreen() {
+  const handleLogout = () => {
+    accountService.logOutUser();
+    router.replace("");
+  }
+
   return (
     <View style={styles.container}>
       <View style={{flexDirection: 'row', justifyContent: 'flex-start', padding: 10}}>
@@ -74,7 +80,7 @@ export default function ProfileScreen() {
       </ListItem.Content>
       <ListItem.Chevron />
     </ListItem> */}
-      <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignSelf: 'center',alignItems: 'center', justifyContent: 'center'}} onPress={() => router.replace('')}>
+      <TouchableOpacity style= {{backgroundColor: '#75E6DA', borderRadius: 20, height: 50, width: 100, alignSelf: 'center',alignItems: 'center', justifyContent: 'center'}} onPress={handleLogout}>
         <Text style={{fontWeight:'bold',fontSize:20,color: 'black',padding:4}}>Logout</Text>
       </TouchableOpacity>
     </View>
