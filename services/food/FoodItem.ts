@@ -10,23 +10,34 @@ export class Macros {
   }
 }
 
+
 export default class FoodItem {
   name: string;
-  servings: number;
   calories: number;
   macros: Macros;
   source: string;
+  servingSize: number;
+  servingSizeUnit: string;
+  amount: number;
+  date: Date;
 
   constructor(
     name: string,
-    servings: number,
     calories: number,
-    macros: Macros
+    macros: Macros,
+    source: string,
+    servringSize: number,
+    servingSizeUnit: string,
+    amount: number = 1,
+    date: Date = new Date()
   ) {
     this.name = name;
-    this.servings = servings;
     this.calories = calories;
     this.macros = macros;
-    this.source = "USDA";
+    this.source = source;
+    this.servingSize = servringSize
+    this.servingSizeUnit = servingSizeUnit
+    this.amount = amount;
+    this.date = date;
   }
 }
