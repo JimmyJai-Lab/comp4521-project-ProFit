@@ -21,5 +21,10 @@ expo-env.d.ts
 
 # config
 config/
+
+# prebuild
 android/
 ios/
+
+google-services.json
+GoogleService-Info.plist
