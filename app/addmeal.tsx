@@ -1,31 +1,52 @@
-import {useNavigation,ParamListBase} from '@react-navigation/native';
-import * as Progress from 'react-native-progress';
-import React, { useState } from 'react';
-import { Text, View, StyleSheet,TouchableOpacity,ScrollView,Image} from 'react-native';
+import { useEffect, useState } from 'react';
+import { Text, View, StyleSheet,TouchableOpacity,ScrollView} from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { withDecay } from 'react-native-reanimated';
 import AddFoodItem from '@/components/AddFoodItem';
 import { router } from 'expo-router';
+import FoodItem from '@/services/food/FoodItem';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
+export default function CommunityScreen() {
+  //const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const [search, setSearch] = useState('');
+  const [recentFoods, setRecentFoods] = useState<Array<FoodItem>>([]);
 
-export class App extends React.Component {
-  state = {
-    search: '',
+  const updateSearch = (search: any) => {
+    setSearch(search);
   };
 
-  updateSearch = (search: any) => {
-    this.setState({ search });
-  };
+  const updateRecentFoods = async () => {
+    const snapshot = await firestore()
+      .collection("users")
+      .doc(auth().currentUser?.uid)
+      .collection("recent_foods")
+      .orderBy("date", "desc")
+      .get();
+    const foods = snapshot.docs.map((doc) => doc.data() as FoodItem);
+    setRecentFoods(foods);
+  }
 
-  render() {
-    const { search } = this.state;
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection("users")
+      .doc(auth().currentUser?.uid)
+      .collection("food_logs")
+      .onSnapshot(() => {
+        updateRecentFoods();
+      });
 
-    return (
+    return () => unsubscribe();
+  }, []);
+    
+  return (
+    <View>
+      {/* Search Bar*/}
       <SearchBar
         placeholder="Search for Previous Foods Here ..."
-        onChangeText={this.updateSearch}
+        onChangeText={updateSearch}
         value={search}
         lightTheme={true}
         inputContainerStyle={{height:10,backgroundColor:'#d1d0d0'}}
@@ -35,119 +56,107 @@ export class App extends React.Component {
           fontSize:10          
         }}
       />
-    );
-  }
-}
 
-export default function CommunityScreen() {
-  //const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-
-    
-    return (
-      <View>
-        {/* Search Bar*/}
-        <App></App>
-
-        {/* Middle Buttons*/}
-        <View
-          style={{
-            flexDirection: "row",
-            alignSelf: "center",
-            alignItems: "center",
-          }}
-        >
-          {/* Left Buttons*/}
-          <TouchableOpacity style={styles.functionBox}>
-            <MaterialCommunityIcons
-              name="line-scan"
-              size={60}
-              color="black"
-              style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
-            />
-            <Text
-              style={{
-                fontSize: 25,
-                color: "white",
-                flex: 1,
-                alignSelf: "center",
-                fontWeight: "bold",
-              }}
-            >
-              Scan
-            </Text>
-          </TouchableOpacity>
-
-          {/* Right Buttons*/}
-          <TouchableOpacity
-            style={styles.functionBox}
-            onPress={() => router.navigate("/addmeal_api")}
-          >
-            <MaterialIcons
-              name="assignment-add"
-              size={60}
-              color="black"
-              style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
-            />
-            <Text
-              style={{
-                fontSize: 25,
-                color: "white",
-                flex: 1,
-                alignSelf: "center",
-                fontWeight: "bold",
-              }}
-            >
-              Add Item
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Bottom History*/}
-        <Text
-          style={{
-            fontWeight: 100,
-            fontStyle: "italic",
-            paddingHorizontal: 10,
-            paddingTop: 20,
-          }}
-        >
-          Previous added items
-        </Text>
-        <ScrollView style={styles.bottomContainer}>
-          <Text>Test</Text>
-          <AddFoodItem
-            item={{ name: "Burger", source: "Someone", calories: 78, macros: { protein: 10, fat: 10, carbs: 10 }, servings: 1 }}
+      {/* Middle Buttons*/}
+      <View
+        style={{
+          flexDirection: "row",
+          alignSelf: "center",
+          alignItems: "center",
+        }}
+      >
+        {/* Left Buttons*/}
+        <TouchableOpacity style={styles.functionBox}>
+          <MaterialCommunityIcons
+            name="food"
+            size={60}
+            color="black"
+            style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
           />
-        </ScrollView>
+          <Text
+            style={{
+              fontSize: 18,
+              color: "white",
+              flex: 1,
+              alignSelf: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Add Custome Item
+          </Text>
+        </TouchableOpacity>
+
+        {/* Right Buttons*/}
+        <TouchableOpacity
+          style={styles.functionBox}
+          onPress={() => router.navigate("/addmeal_api")}
+        >
+          <MaterialIcons
+            name="search"
+            size={60}
+            color="black"
+            style={{ flex: 1, alignSelf: "center", paddingLeft: 10 }}
+          />
+          <Text
+            style={{
+              fontSize: 18,
+              color: "white",
+              flex: 1,
+              alignSelf: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Search Item
+          </Text>
+        </TouchableOpacity>
       </View>
-    );
-  }
+
+      {/* Bottom History*/}
+      <Text
+        style={{
+          fontWeight: 100,
+          fontStyle: "italic",
+          paddingHorizontal: 10,
+          paddingTop: 20,
+        }}
+      >
+        Previous added items
+      </Text>
+      <ScrollView style={styles.bottomContainer}>
+        {recentFoods.map((item, index) => {
+          return <AddFoodItem key={`recent-${index}`} item={item} />;
+        })}
+      </ScrollView>
+    </View>
+  );
+}
   
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#FFFFFF',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    text: {
-      color: '#000000',
-    },
-    functionBox:{
-      backgroundColor:'#fe6d87',
-      height:90,
-      width:150,
-      marginTop:15,
-      marginHorizontal:10,
-      borderRadius:20,
-      flexDirection:'row',
-      alignContent:'center',     
-    },
-    bottomContainer:{
-      backgroundColor:'#d9e3fb',
-      height:500,
-      width:340,
-      alignSelf:'center',
-      borderRadius:20,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    color: '#000000',
+  },
+  functionBox:{
+    backgroundColor:'#fe6d87',
+    height:90,
+    width:150,
+    marginTop:15,
+    marginHorizontal:10,
+    borderRadius:20,
+    flexDirection:'row',
+    alignContent:'center',     
+  },
+  bottomContainer:{
+    backgroundColor:'#d9e3fb',
+    height:500,
+    width:340,
+    alignSelf:'center',
+    borderRadius:20,
+  },
+});
+

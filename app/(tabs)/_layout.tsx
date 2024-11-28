@@ -39,6 +39,7 @@ export default function TabLayout() {
       }} />
       <Tabs.Screen name="fitness" options={{
         title: 'Fitness',
+        headerShown: false,
         tabBarIcon: ({ color, focused }) => (
           <MaterialIcons name="fitness-center" size={24} color={color} />
         ),
