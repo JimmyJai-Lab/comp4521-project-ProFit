@@ -73,7 +73,6 @@ export default function DietScreen() {
       setMealsCache(new Map(mealsCache.set(selectedDate.toISOString(), data as FoodItem[])));
     }
   }
-
   const updateCaloriesAndNutrients = () => {
     const totalCalories = meals.reduce((acc, meal) => acc + (meal.calories * (meal.amount ?? 1)), 0);
     const totalProtein = meals.reduce((acc, meal) => acc + (meal.macros.protein * (meal.amount ?? 1)), 0);
