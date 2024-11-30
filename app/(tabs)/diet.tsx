@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import FoodItem from '@/services/food/FoodItem';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function DietScreen() {
   const [protein, setProtein] = useState(80); // Example current intake
@@ -35,6 +36,7 @@ export default function DietScreen() {
       Alert.alert('Invalid Input', 'Please enter a valid number');
     }
   };
+  
 
   const updateMeals = async () => {
     console.log("Updating meals...");
@@ -114,8 +116,8 @@ export default function DietScreen() {
           borderWidth: 1,
           borderHighlightColor: "white",
         }}
-        style={{ height: 100, paddingTop: 30, paddingBottom: 10 }}
-        calendarHeaderStyle={{ color: "white", fontSize: 10 }}
+        style={{ height: 80, paddingTop: 5, paddingBottom: 5 }}
+        calendarHeaderStyle={{ color: "white", fontSize: 15 }}
         calendarColor={"#7743CE"}
         dateNumberStyle={{ color: "white", fontSize: 10 }}
         dateNameStyle={{ color: "white", fontSize: 10 }}
@@ -192,6 +194,7 @@ export default function DietScreen() {
                       onSubmitEditing={(e) => {
                         confirmInput(e.nativeEvent.text);
                       }}
+                      keyboardType="numeric"
                     >
                       {targetCalories}
                     </TextInput>
@@ -246,14 +249,14 @@ export default function DietScreen() {
                 item={{
                   name: "Protein",
                   value: protein.toFixed(1),
-                  total: 150,
+                  total: 60,
                 }}
               />
               <NutrientItem
-                item={{ name: "Carbs", value: carbs.toFixed(1), total: 100 }}
+                item={{ name: "Carbs", value: carbs.toFixed(1), total: 250 }}
               />
               <NutrientItem
-                item={{ name: "Fats", value: fats.toFixed(1), total: 80 }}
+                item={{ name: "Fats", value: fats.toFixed(1), total: 60}}
               />
             </ScrollView>
           </View>
@@ -285,32 +288,35 @@ export default function DietScreen() {
           </View>
         </View>
 
-        {/* Bottom Container */}
+        {/* breakfast Container */}
         <View style={styles.bottomContainer}>
-          <Text style={{ fontWeight: 200, fontSize: 15, marginBottom: 10 }}>
+          <Text style={{ fontWeight: 200, fontSize: 15,fontStyle:'italic'}}>
             Breakfast
           </Text>
           {meals.map((item, index) => (
             <View
               key={index}
               style={{
-                marginBottom: 10,
-                padding: 10,
-                backgroundColor: "#f0f0f0",
+                marginBottom: 0,
+                
+                backgroundColor: "transparent",
                 borderRadius: 10,
               }}
             >
-              <Text>Name: {item.name}</Text>
-              <Text>Calories: {item.calories}</Text>
-              <Text>Protein: {item.macros.protein}</Text>
-              <Text>Carbs: {item.macros.carbs}</Text>
-              <Text>Fat: {item.macros.fat}</Text>
-              <Text>Source: {item.source}</Text>
-              <Text>Servings: {item.servingSize}</Text>
-              <Text>Unit: {item.servingSizeUnit}</Text>
-              <Text>Amount: {item.amount}</Text>
-              <Text>Date: {item.date.toLocaleDateString()}</Text>
-              <Text>Time: {item.date.toLocaleTimeString()}</Text>
+              
+              <View style={styles.mealcontainer}>
+              <View style={{}}>
+              <Text style={{marginLeft:15,fontWeight:'bold',fontSize:15,color:'#640D5F'}}>{item.name}</Text>
+              <Text style={{marginLeft:15,fontWeight:300,color:'black',backgroundColor:'transparent',width:180}}>From: {item.source}</Text>
+              <Text style={{marginLeft:15,fontWeight:300,color:'black'}}>Serving: {item.servingSize} {item.servingSizeUnit}</Text>
+              </View>
+              <View style={styles.rightcontainer}>
+                <FontAwesome5 name="fire-alt" size={24} color="#D91656"/>
+                <View style={{width:70,height:25,justifyContent:'center',paddingLeft:3}}>
+                  <Text style={{color:'white',fontWeight:'bold',textAlignVertical:'center',textAlign:'center',fontSize:17}}>{item.calories*item.amount} cal</Text>
+                </View>
+              </View>
+              </View>
             </View>
           ))}
           <Text
@@ -334,6 +340,32 @@ export default function DietScreen() {
           >
             Dinner
           </Text>
+          {/* optional lunch Container */}
+          <View style={styles.bottomContainer}>
+            <Text
+              style={{
+                fontWeight: 200,
+                fontSize: 15,
+                marginTop: 10,
+                marginBottom: 10,
+              }}
+            >
+              Lunch
+            </Text>
+          </View>
+          {/* optional dinner Container */}
+          <View style={styles.bottomContainer}>
+            <Text
+              style={{
+                fontWeight: 200,
+                fontSize: 15,
+                marginTop: 10,
+                marginBottom: 10,
+              }}
+            >
+              Dinner
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -418,5 +450,27 @@ const styles = StyleSheet.create({
   nutrientEle:{
     marginVertical:5,
   },
-  
+  mealcontainer: {
+    backgroundColor:'#cfcfce',
+    width:325,
+    height:"100%",
+    flex:1,
+    borderRadius:25,
+    alignSelf:'center',
+    flexDirection:'row',
+    justifyContent:'space-between',
+    padding:5,      
+    marginVertical:5,                    
+    alignItems:'center'
+  },
+rightcontainer:{
+    flexDirection:'row',
+    backgroundColor:'#adbbd5',
+    borderRadius:20,
+    width:110,
+    height:50,
+    paddingLeft:10,
+    alignItems:'center',
+    
+},
 });
