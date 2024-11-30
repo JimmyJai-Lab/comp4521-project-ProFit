@@ -11,6 +11,8 @@ export default function CommunityScreen() {
   const confirmPost = () => {
 
   };
+
+  
   return (
     <View>
       <View style={styles.topbar}>
