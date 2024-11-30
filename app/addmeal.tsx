@@ -66,7 +66,9 @@ export default function CommunityScreen() {
         }}
       >
         {/* Left Buttons*/}
-        <TouchableOpacity style={styles.functionBox}>
+        <TouchableOpacity style={styles.functionBox}
+        onPress={() => router.navigate("/addcustome")}
+        >
           <MaterialCommunityIcons
             name="food"
             size={60}
@@ -79,7 +81,7 @@ export default function CommunityScreen() {
               color: "white",
               flex: 1,
               alignSelf: "center",
-              fontWeight: "bold",
+              fontWeight: "bold"
             }}
           >
             Add Custome Item
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
   functionBox:{
     backgroundColor:'#fe6d87',
     height:90,
-    width:150,
+    width:170,
     marginTop:15,
     marginHorizontal:10,
     borderRadius:20,
@@ -152,9 +154,9 @@ const styles = StyleSheet.create({
     alignContent:'center',     
   },
   bottomContainer:{
-    backgroundColor:'#d9e3fb',
+    backgroundColor:'#afbdd6',
     height:500,
-    width:340,
+    width:350,
     alignSelf:'center',
     borderRadius:20,
   },
