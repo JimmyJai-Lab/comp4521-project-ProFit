@@ -13,10 +13,9 @@ export default function DietScreen() {
   const [carbs, setCarbs] = useState(150); // Example current intake
   const [fats, setFats] = useState(60); // Example current intake 
   
-  const [calories, setCalories] = useState<number | null>(2500);
-  const [inputValue, setInputValue] = useState<string>(''); // Temporary storage for input
+  const [targetCalories, setTargetCalories] = useState<number>(2500);
+  const [inputValue, setInputValue] = useState<string>('');
   const [currentCalories, setCurrentCalories] = useState<number>(1200);
-  const [caloriesLeft, setCaloriesLeft] = useState<number >(0);
 
   const [meals, setMeals] = useState<Array<FoodItem>>([]);
   const [mealsCache, setMealsCache] = useState<Map<string, FoodItem[]>>(new Map());
@@ -26,16 +25,12 @@ export default function DietScreen() {
     new Date().getDate()
   ));
 
-  const confirmInput = () => {
-    const numericValue = parseInt(inputValue, 10);
+  const confirmInput = (inputText: string) => {
+    const numericValue = parseInt(inputText, 10);
 
     if (!isNaN(numericValue) && numericValue > 0) {
-      setCalories(numericValue);       // Set target calories
-      setInputValue('');               // Reset input value to blank
-
-      // Calculate how many calories are left
-      const remainingCalories = numericValue - currentCalories;
-      setCaloriesLeft(remainingCalories);  // Store the difference
+      setTargetCalories(numericValue);       // Set target calories
+      // setInputValue('');               // Reset input value to blank
     } else {
       Alert.alert('Invalid Input', 'Please enter a valid number');
     }
@@ -132,8 +127,10 @@ export default function DietScreen() {
         iconContainer={{ flex: 0.1, fontSize: 10 }}
         selectedDate={new Date()}
         onDateSelected={(date) => {
-            const adjustedDate = new Date(date.toDate().getTime() - 12 * 60 * 60 * 1000);
-            setSelectedDate(adjustedDate);
+          const adjustedDate = new Date(
+            date.toDate().getTime() - 12 * 60 * 60 * 1000
+          );
+          setSelectedDate(adjustedDate);
         }}
       />
 
@@ -143,39 +140,6 @@ export default function DietScreen() {
           {/* Left Container */}
           <View style={styles.leftContainer}>
             <View>
-              <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                <TouchableOpacity style={styles.smallbutton}>
-                  <TextInput
-                    style={{
-                      fontWeight: "bold",
-                      color: "white",
-                      paddingBottom: 2,
-                    }}
-                    keyboardType="number-pad"
-                    placeholder={"Cals"}
-                    value={inputValue}
-                    onChangeText={(text) => setInputValue(text)}
-                    maxLength={5}
-                  />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.smallbutton}
-                  onPress={confirmInput}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: 15,
-                      color: "white",
-                      padding: 4,
-                    }}
-                  >
-                    Set
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
               <Text
                 style={{
                   alignItems: "center",
@@ -195,9 +159,10 @@ export default function DietScreen() {
                 style={{ alignSelf: "center" }}
                 size={120}
                 width={15}
-                fill={50}
-                tintColor="#4B4376"
+                fill={(currentCalories / targetCalories) * 100}
+                tintColor={currentCalories < targetCalories ? "#4B4376" : "#FF0000"}
                 backgroundColor="#E8BCB9"
+                rotation={0}
               >
                 {(fill) => (
                   <>
@@ -219,15 +184,18 @@ export default function DietScreen() {
                     >
                       /
                     </Text>
-                    <Text
+                    <TextInput
                       style={{
                         fontWeight: "bold",
                         fontSize: 20,
                         color: "white",
                       }}
+                      onSubmitEditing={(e) => {
+                        confirmInput(e.nativeEvent.text);
+                      }}
                     >
-                      {calories}
-                    </Text>
+                      {targetCalories}
+                    </TextInput>
                   </>
                 )}
               </AnimatedCircularProgress>
@@ -238,6 +206,7 @@ export default function DietScreen() {
                   fontSize: 12,
                   color: "white",
                   fontStyle: "italic",
+                  paddingTop: 10,
                 }}
               >
                 You have ...
@@ -250,9 +219,11 @@ export default function DietScreen() {
                 }}
               >
                 {" "}
-                {caloriesLeft > 0
-                  ? `${caloriesLeft} calories left!`
-                  : `${Math.abs(caloriesLeft)} calories exceed!`}
+                {targetCalories - currentCalories > 0
+                  ? `${targetCalories - currentCalories} calories left!`
+                  : `${Math.abs(
+                      currentCalories - targetCalories
+                    )} calories exceed!`}
               </Text>
             </View>
           </View>
@@ -273,12 +244,18 @@ export default function DietScreen() {
                 Micro-Nutrients
               </Text>
               <NutrientItem
-                item={{ name: "Protein", value: protein, total: 150 }}
+                item={{
+                  name: "Protein",
+                  value: protein.toFixed(1),
+                  total: 150,
+                }}
               />
               <NutrientItem
-                item={{ name: "Carbs", value: carbs, total: 100 }}
+                item={{ name: "Carbs", value: carbs.toFixed(1), total: 100 }}
               />
-              <NutrientItem item={{ name: "Fats", value: fats, total: 80 }} />
+              <NutrientItem
+                item={{ name: "Fats", value: fats.toFixed(1), total: 80 }}
+              />
             </ScrollView>
           </View>
         </View>
@@ -314,8 +291,16 @@ export default function DietScreen() {
           <Text style={{ fontWeight: 200, fontSize: 15, marginBottom: 10 }}>
             Breakfast
           </Text>
-            {meals.map((item, index) => (
-            <View key={index} style={{ marginBottom: 10, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 10 }}>
+          {meals.map((item, index) => (
+            <View
+              key={index}
+              style={{
+                marginBottom: 10,
+                padding: 10,
+                backgroundColor: "#f0f0f0",
+                borderRadius: 10,
+              }}
+            >
               <Text>Name: {item.name}</Text>
               <Text>Calories: {item.calories}</Text>
               <Text>Protein: {item.macros.protein}</Text>
@@ -328,7 +313,7 @@ export default function DietScreen() {
               <Text>Date: {item.date.toLocaleDateString()}</Text>
               <Text>Time: {item.date.toLocaleTimeString()}</Text>
             </View>
-            ))}
+          ))}
           <Text
             style={{
               fontWeight: 200,

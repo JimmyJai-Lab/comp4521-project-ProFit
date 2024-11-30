@@ -45,7 +45,7 @@ class FoodSearchService {
             food.foodNutrients[1].value,
             food.foodNutrients[2].value
           ),
-          food.dataType,
+          food.brandName,
           food.servingSize,
           food.servingSizeUnit
         );
