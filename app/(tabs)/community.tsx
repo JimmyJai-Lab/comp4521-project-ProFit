@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react';
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import Post from '@/services/community/Post';
-
+import { router } from 'expo-router';
+import AddShownFood from '@/components/AddShownFood';
 
 export default function CommunityScreen() {
   const [postText, setPostText] = useState('');
@@ -86,55 +87,45 @@ export default function CommunityScreen() {
   
   return (
     <View>
-      <View style={styles.topbar}>
-        <TouchableOpacity style={styles.topbutton}>
-          <AntDesign name="search1" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topbutton}>
-          <AntDesign name="hearto" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topbutton}>
-          <Ionicons name="fast-food-outline" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topbutton}>
-          <MaterialIcons name="fitness-center" size={30} color= "black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topbutton}>
-          <Entypo name="camera" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topbutton}>
-          <Entypo name="location-pin" size={30} color="black" />
-        </TouchableOpacity> 
-      </View>
+      
 
 
       {/* User Post */}
       <View style={styles.user}>
       <Image source={require('../../assets/images/bur.jpg')} style={{height:60,width:60,borderRadius:30,margin:5}}/>
       <TouchableOpacity style={styles.textbox} disabled>
-        <TextInput placeholder="Let's share something here!" maxLength={500} style={{fontWeight:200}} value={postText} onChangeText={updatePostText}></TextInput>
+        <TextInput placeholder="Let's share something here!" maxLength={500} style={{fontWeight:200}} value={postText} onChangeText={updatePostText} multiline={true} editable={true} ></TextInput>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginLeft:5}} onPress={sendPost}>
-        <Feather name="send" size={24} color="black" />
+      <TouchableOpacity style={{marginLeft:15,backgroundColor:'transparent'}} onPress={sendPost}>
+        <Feather name="send" size={35} color="black" />
       </TouchableOpacity>
       </View>
+      {/* Added Food item shown place */}
+      <ScrollView style={{maxHeight:120,marginVertical:5,minHeight:20}}>
+        <AddShownFood/> 
+           
+      </ScrollView>
 
 
+      <View style={{backgroundColor:'red',margin:10,minHeight:0,borderRadius:10,marginBottom:0}}>
+        
+        
+      </View>
+      
+      
+      
       {/* middle bar */}
       <View style={styles.middlebar}>
-      
         <TouchableOpacity style={styles.middlebutton}>
-          <Text style={{textAlign:'center',fontSize:20,fontWeight:200}}>Poplar</Text>
-        </TouchableOpacity>
-        
-      
-        <TouchableOpacity style={styles.middlebutton}>
-          <Text style={{textAlign:'center',fontSize:20,fontWeight:200}}>Followers</Text>
+          <Text style={{textAlign:'center',fontSize:20,fontWeight:200}}
+          onPress={() => router.navigate("/comment_addfood")}
+          >
+            Add Food Item</Text>
         </TouchableOpacity>
       </View>
       {/* Feed Screen */}
       
-      <ScrollView style={{height:460,marginVertical:5}}>
+      <ScrollView style={{marginBottom:300,height:500}}>
         {posts.map((post, index) => {
           return <AddPost key={`post-${index}`} post={post} />;
         })}
@@ -173,22 +164,26 @@ const styles = StyleSheet.create({
     marginVertical:5,
     flexDirection:'row',
     justifyContent:'center',
+    marginTop:0
   },
   user:{
     backgroundColor:'transparent',
     flexDirection:'row',
     alignItems:'center',
+    paddingTop:10
     
   },
   textbox:{
     backgroundColor:'#e7e7e4',
+    maxWidth:250,
     width:250,
     height:60,
     borderRadius:10,
+    flex:1
   },
   middlebutton:{
     backgroundColor:'#e7e7e4',
-    width:120,
+    width:170,
     borderRadius:10,
     height:30,
     marginHorizontal:10,
