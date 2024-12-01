@@ -8,11 +8,12 @@ import AddPost from '@/components/AddPost';
 import { useEffect, useState } from 'react';
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import Post from '@/services/community/Post';
 
 
 export default function CommunityScreen() {
   const [postText, setPostText] = useState('');
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Array<Post>>([]);
 
   const updatePostText = (text: string) => {
     setPostText(text);
@@ -50,12 +51,33 @@ export default function CommunityScreen() {
     //   });
   };
 
+  const updatePosts = async () => {
+    var data;
+    try {
+      const snapshot = await firestore()
+        .collection('community_posts')
+        .get();
+
+      data = snapshot.docs.map(doc => doc.data());
+    } catch (error) {
+      console.log("Error getting documents: ", error);
+    }
+    
+    if (data) {
+      data = data.map(item => {
+        const date = new Date(item.date.seconds * 1000 + item.date.nanoseconds / 1000000);
+        return { ...item, date };
+      });
+      setPosts(data as Array<Post>);
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = firestore()
       .collection('community_posts')
       .orderBy('date', 'desc')
       .onSnapshot(() => {
-        console.log('Community posts updated!');
+        updatePosts();
       });
 
     return () => unsubscribe();

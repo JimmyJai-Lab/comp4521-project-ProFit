@@ -35,6 +35,10 @@ class AccountService implements IAccountService {
       const userCredential = await auth().createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
+      await user.updateProfile({
+        displayName: username,
+      });
+
       if (!user) {
         throw new Error('Failed to create user account');
       }

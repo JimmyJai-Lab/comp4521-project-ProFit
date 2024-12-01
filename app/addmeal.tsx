@@ -44,7 +44,7 @@ export default function CommunityScreen() {
   return (
     <View>
       {/* Search Bar*/}
-      <SearchBar
+      {/* <SearchBar
         placeholder="Search for Previous Foods Here ..."
         onChangeText={updateSearch}
         value={search}
@@ -55,7 +55,7 @@ export default function CommunityScreen() {
           minHeight: 0,
           fontSize:10          
         }}
-      />
+      /> */}
 
       {/* Middle Buttons*/}
       <View
@@ -67,7 +67,7 @@ export default function CommunityScreen() {
       >
         {/* Left Buttons*/}
         <TouchableOpacity style={styles.functionBox}
-        onPress={() => router.navigate("/addcustome")}
+        onPress={() => router.navigate("/addcustom")}
         >
           <MaterialCommunityIcons
             name="food"
@@ -84,7 +84,7 @@ export default function CommunityScreen() {
               fontWeight: "bold"
             }}
           >
-            Add Custome Item
+            Add Custom Item
           </Text>
         </TouchableOpacity>
 

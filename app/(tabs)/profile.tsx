@@ -3,6 +3,8 @@ import { router } from 'expo-router';
 import { Avatar, Button, DataTable, List } from 'react-native-paper';
 import { ListItem, Icon } from '@rneui/themed';
 import accountService from '@/services/auth/AccountService';
+import auth from '@react-native-firebase/auth';
+
 const age = 18;
 const height = 175;
 const weight = 70;
@@ -22,7 +24,7 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start', padding: 10 }}>
         <Avatar.Image style={{}} size={80} source={require('../../assets/images/pngwing.com.png')} />
-        <Text style={{ alignSelf: 'center', fontSize: 30, padding: 10 }}>John Doe</Text>
+        <Text style={{ alignSelf: 'center', fontSize: 30, padding: 10 }}>{auth().currentUser?.displayName}</Text>
         <Button buttonColor='#CBC3E3' style={styles.fab} labelStyle={{ padding: 10, fontSize: 20, fontWeight: 'bold' }}>
           Edit
         </Button>

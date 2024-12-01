@@ -20,6 +20,7 @@ export default class FoodItem {
   servingSizeUnit: string;
   amount: number;
   date: Date;
+  time: string;
 
   constructor(
     name: string,
@@ -29,7 +30,8 @@ export default class FoodItem {
     servringSize: number,
     servingSizeUnit: string,
     amount: number = 1,
-    date: Date = new Date()
+    date: Date = new Date(),
+    time: string
   ) {
     this.name = name;
     this.calories = calories;
@@ -39,5 +41,6 @@ export default class FoodItem {
     this.servingSizeUnit = servingSizeUnit
     this.amount = amount;
     this.date = date;
+    this.time = time;
   }
 }
