@@ -5,8 +5,9 @@ import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
+import Post from '@/services/community/Post';
 
-const AddPost = ({ user }: {user:any}) => {
+const AddPost = ({ post }: { post: Post }) => {
     
     return(
         <View style={styles.container}>
@@ -16,7 +17,7 @@ const AddPost = ({ user }: {user:any}) => {
 
             <View style={{marginHorizontal:10}}>
             <View style={styles.userbar}>
-            <Text style={{fontSize:18}}>{user.name}</Text>
+            <Text style={{fontSize:18}}>{post.}</Text>
             <View style={{flexDirection:'row',width:80}}>
             <Text style={{fontWeight:200}}>{user.time}</Text>
             <TouchableOpacity style={{marginLeft:30}}>
