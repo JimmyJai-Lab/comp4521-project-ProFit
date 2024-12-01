@@ -1,13 +1,19 @@
 import {View, Text, Image,TouchableOpacity,StyleSheet} from 'react-native'
 import * as Progress from 'react-native-progress';
-import * as React from 'react';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
 import Post from '@/services/community/Post';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import { useEffect, useState } from 'react';
 
 const AddPost = ({ post }: { post: Post }) => {
+    const [like, setLike] = useState(false);
+    const [likes, setLikes] = useState(post.likes);
+
+
     
     return(
         <View style={styles.container}>
@@ -19,7 +25,7 @@ const AddPost = ({ post }: { post: Post }) => {
             <View style={styles.userbar}>
             <Text style={{fontSize:18}}>{post.username}</Text>
             <View style={{flexDirection:'row',width:80}}>
-            <Text style={{fontWeight:200}}>{new Date(post.date).toDateString()}</Text>
+            <Text style={{fontWeight:200}}>{new Date(post.date).toLocaleDateString()}</Text>
             <TouchableOpacity style={{marginLeft:30}}>
             <Entypo name="dots-three-horizontal" size={18} color="black" />
             </TouchableOpacity>
@@ -27,17 +33,17 @@ const AddPost = ({ post }: { post: Post }) => {
             </View>
             <Text style={{width:275, maxHeight:500,backgroundColor:'transparent'}}>{post.content}</Text>
             <View style={styles.functionbar}>
-            <TouchableOpacity>
-            <AntDesign name="hearto" size={24} color="black" />
+            <TouchableOpacity onPress={(e) => setLike(!like)}>
+                <AntDesign name="hearto" size={24} color={like ? "red" : "black"} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.functionbutton}>
-            <FontAwesome5 name="comment" size={24} color="black" />
+                <FontAwesome5 name="comment" size={24} color="black" />
             </TouchableOpacity>
             <TouchableOpacity>
-            <Feather name="send" size={24} color="black" />
+                <Feather name="send" size={24} color="black" />
             </TouchableOpacity>
             </View>
-            <Text style={{fontWeight:200}}>{post.likes} likes</Text>
+            <Text style={{fontWeight:200}}>{likes} likes</Text>
             </View>
         </View>
     );

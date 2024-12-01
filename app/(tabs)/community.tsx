@@ -27,6 +27,7 @@ export default function CommunityScreen() {
         date: new Date(),
         uid: auth().currentUser?.uid,
         username: auth().currentUser?.displayName,
+        likes: 0
       })
       .then(() => {
         setPostText('');
@@ -66,7 +67,7 @@ export default function CommunityScreen() {
     if (data) {
       data = data.map(item => {
         const date = new Date(item.date.seconds * 1000 + item.date.nanoseconds / 1000000);
-        return { ...item, date };
+        return { ...item, date, id: item.id };
       });
       setPosts(data as Array<Post>);
     }

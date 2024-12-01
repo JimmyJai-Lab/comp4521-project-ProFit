@@ -1,4 +1,5 @@
 export default interface Post {
+    id: string;
     content: string;
     date: Date;
     uid: string;
