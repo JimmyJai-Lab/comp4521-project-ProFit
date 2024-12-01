@@ -626,14 +626,14 @@ const styles = StyleSheet.create({
     marginVertical:5,                    
     alignItems:'center'
   },
-rightcontainer:{
-    flexDirection:'row',
-    backgroundColor:'#adbbd5',
-    borderRadius:20,
-    width:110,
-    height:50,
-    paddingLeft:10,
-    alignItems:'center',
-    
-},
+  rightcontainer:{
+      flexDirection:'row',
+      backgroundColor:'#adbbd5',
+      borderRadius:20,
+      width:110,
+      height:50,
+      paddingLeft:10,
+      alignItems:'center',
+      
+  },
 });
