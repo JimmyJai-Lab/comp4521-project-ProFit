@@ -14,7 +14,6 @@ export default function DietScreen() {
   const [fats, setFats] = useState(60); // Example current intake 
   
   const [targetCalories, setTargetCalories] = useState<number>(2500);
-  const [inputValue, setInputValue] = useState<string>('');
   const [currentCalories, setCurrentCalories] = useState<number>(1200);
 
   const [meals, setMeals] = useState<Array<FoodItem>>([]);
@@ -29,8 +28,7 @@ export default function DietScreen() {
     const numericValue = parseInt(inputText, 10);
 
     if (!isNaN(numericValue) && numericValue > 0) {
-      setTargetCalories(numericValue);       // Set target calories
-      // setInputValue('');               // Reset input value to blank
+      setTargetCalories(numericValue);
     } else {
       Alert.alert('Invalid Input', 'Please enter a valid number');
     }
@@ -95,6 +93,21 @@ export default function DietScreen() {
       });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeAuth = auth().onAuthStateChanged((user) => {
+      if (!user) {
+        setMealsCache(new Map());
+        setMeals([]);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    updateMeals();
   }, []);
 
   useEffect(() => {

@@ -5,12 +5,61 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 import AddPost from '@/components/AddPost';
+import { useEffect, useState } from 'react';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 
 export default function CommunityScreen() {
-  const confirmPost = () => {
+  const [postText, setPostText] = useState('');
+  const [posts, setPosts] = useState([]);
 
+  const updatePostText = (text: string) => {
+    setPostText(text);
   };
+
+  const sendPost = () => {
+    firestore()
+      .collection('community_posts')
+      .add({
+        content: postText,
+        date: new Date(),
+        uid: auth().currentUser?.uid,
+        username: auth().currentUser?.displayName,
+      })
+      .then(() => {
+        setPostText('');
+      })
+      .catch((error) => {
+        console.error('Failed to add post:', error);
+      });
+
+    // firestore()
+    //   .collection('users')
+    //   .doc(auth().currentUser?.uid)
+    //   .collection('my_posts')
+    //   .add({
+    //     text: postText,
+    //     date: new Date(),
+    //   })
+    //   .then(() => {
+    //     setPostText('');
+    //   })
+    //   .catch((error) => {
+    //     console.error('Failed to add post:', error);
+    //   });
+  };
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('community_posts')
+      .orderBy('date', 'desc')
+      .onSnapshot(() => {
+        console.log('Community posts updated!');
+      });
+
+    return () => unsubscribe();
+  });
 
   
   return (
@@ -40,10 +89,10 @@ export default function CommunityScreen() {
       {/* User Post */}
       <View style={styles.user}>
       <Image source={require('../../assets/images/bur.jpg')} style={{height:60,width:60,borderRadius:30,margin:5}}/>
-      <TouchableOpacity style={styles.textbox}>
-        <TextInput placeholder="Let's share something here!" maxLength={500} style={{fontWeight:200}}/>
+      <TouchableOpacity style={styles.textbox} disabled>
+        <TextInput placeholder="Let's share something here!" maxLength={500} style={{fontWeight:200}} value={postText} onChangeText={updatePostText}></TextInput>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginLeft:5}} onPress={confirmPost}>
+      <TouchableOpacity style={{marginLeft:5}} onPress={sendPost}>
         <Feather name="send" size={24} color="black" />
       </TouchableOpacity>
       </View>
@@ -64,10 +113,9 @@ export default function CommunityScreen() {
       {/* Feed Screen */}
       
       <ScrollView style={{height:460,marginVertical:5}}>
-        <AddPost user={{name:'Mr. Burger',time:'33m',likes:99}} />
-        <AddPost user={{name:'Mr. Burger',time:'33m',likes:99}} />
-        <AddPost user={{name:'Mr. Burger',time:'33m',likes:99}} />
-        <AddPost user={{name:'Mr. Burger',time:'33m',likes:99}} />
+        {posts.map((post, index) => {
+          return <AddPost key={`post-${index}`} post={post} />;
+        })}
       </ScrollView>
       
     </View>
