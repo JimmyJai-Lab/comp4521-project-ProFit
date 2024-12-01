@@ -17,17 +17,15 @@ const AddPost = ({ post }: { post: Post }) => {
 
             <View style={{marginHorizontal:10}}>
             <View style={styles.userbar}>
-            <Text style={{fontSize:18}}>{post.}</Text>
+            <Text style={{fontSize:18}}>{post.username}</Text>
             <View style={{flexDirection:'row',width:80}}>
-            <Text style={{fontWeight:200}}>{user.time}</Text>
+            <Text style={{fontWeight:200}}>{new Date(post.date).toDateString()}</Text>
             <TouchableOpacity style={{marginLeft:30}}>
             <Entypo name="dots-three-horizontal" size={18} color="black" />
             </TouchableOpacity>
             </View>
             </View>
-            <Text style={{width:275, maxHeight:500,backgroundColor:'transparent'}}> 
-                This is the content area.This is the content area.This is the content area.This is the content area.This is the content area.This is the content area.
-            </Text>
+            <Text style={{width:275, maxHeight:500,backgroundColor:'transparent'}}>{post.content}</Text>
             <View style={styles.functionbar}>
             <TouchableOpacity>
             <AntDesign name="hearto" size={24} color="black" />
@@ -39,7 +37,7 @@ const AddPost = ({ post }: { post: Post }) => {
             <Feather name="send" size={24} color="black" />
             </TouchableOpacity>
             </View>
-            <Text style={{fontWeight:200}}>{user.likes} likes</Text>
+            <Text style={{fontWeight:200}}>{post.likes} likes</Text>
             </View>
         </View>
     );

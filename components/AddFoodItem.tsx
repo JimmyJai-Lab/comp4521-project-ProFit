@@ -1,4 +1,4 @@
-import {View, Text, Image,TouchableOpacity,StyleSheet, Alert,Platform,Modal, FlatList,ScrollView} from 'react-native'
+import {View, Text, Image,TouchableOpacity,StyleSheet, Alert,Platform,Modal, FlatList,ScrollView, TextInput} from 'react-native'
 import FoodItem from '@/services/food/FoodItem';
 import { useState } from 'react';
 import firestore from '@react-native-firebase/firestore';
@@ -16,8 +16,8 @@ const AddFoodItem = ({ item }: {item : FoodItem}) => {
 	const options = ["Breakfast", "Lunch", "Dinner"];
 	
 	const handleOptionSelect = (option: React.SetStateAction<string>) => {
-    setSelectedOption(option); // Update the selected option
-    setIsDropdownVisible(false); // Close the dropdown
+		setSelectedOption(option); // Update the selected option
+		setIsDropdownVisible(false); // Close the dropdown
   	};
 	
 	const updateDatabase = async () => {
@@ -32,6 +32,7 @@ const AddFoodItem = ({ item }: {item : FoodItem}) => {
 				servingSizeUnit: item.servingSizeUnit,
 				amount: amount,
 				date: new Date(),
+				time: selectedOption,
 			};
 
 			await firestore()
@@ -70,6 +71,16 @@ const AddFoodItem = ({ item }: {item : FoodItem}) => {
 		router.navigate('/(tabs)/diet');
 	};
 
+	const confirmInput = (inputNumber: string) => {
+		const number = parseFloat(inputNumber);
+		if (number < 0) {
+			Alert.alert('Please enter a valid number');
+		}
+		else {
+			setAmount(number);
+		}
+	}
+
     return(
 		<View style={styles.container}>
 		
@@ -93,7 +104,7 @@ const AddFoodItem = ({ item }: {item : FoodItem}) => {
 				<Text style={{color:'#1c438b',fontSize:20,textAlignVertical:'center',textAlign:'center',alignSelf:'center',marginBottom:2}}>+</Text>
 			</TouchableOpacity>
 
-			<Text style={{marginHorizontal:5, borderRadius:10,width:50,margin:5,flex:1,textAlign:'center'}}>{amount}</Text>
+			<TextInput style={{marginHorizontal:5, borderRadius:10,width:50,margin:5,flex:1,textAlign:'center'}} keyboardType='numeric' onSubmitEditing={(e) => confirmInput(e.nativeEvent.text)}>{amount}</TextInput>
 
 			<TouchableOpacity style={{marginHorizontal:5, backgroundColor:'#ffedc1',borderRadius:10,width:50,marginVertical:5,alignItems:'center',flex:1,alignContent:'center'}} onPress={() => {
 				if (amount > 1) {

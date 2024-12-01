@@ -94,7 +94,7 @@ export default function DietScreen() {
       });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth().currentUser?.uid]);
 
   useEffect(() => {
     const unsubscribeAuth = auth().onAuthStateChanged((user) => {
@@ -174,7 +174,9 @@ export default function DietScreen() {
                 size={120}
                 width={15}
                 fill={(currentCalories / targetCalories) * 100}
-                tintColor={currentCalories < targetCalories ? "#4B4376" : "#FF0000"}
+                tintColor={
+                  currentCalories < targetCalories ? "#4B4376" : "#D91656"
+                }
                 backgroundColor="#E8BCB9"
                 rotation={0}
               >
@@ -269,7 +271,7 @@ export default function DietScreen() {
                 item={{ name: "Carbs", value: carbs.toFixed(1), total: 250 }}
               />
               <NutrientItem
-                item={{ name: "Fats", value: fats.toFixed(1), total: 60}}
+                item={{ name: "Fats", value: fats.toFixed(1), total: 60 }}
               />
             </ScrollView>
           </View>
@@ -303,82 +305,230 @@ export default function DietScreen() {
 
         {/* breakfast Container */}
         <View style={styles.bottomContainer}>
-          <Text style={{ fontWeight: 200, fontSize: 15,fontStyle:'italic'}}>
+          <Text style={{ fontWeight: 200, fontSize: 15, fontStyle: "italic" }}>
             Breakfast
           </Text>
-          {meals.map((item, index) => (
-            <View
-              key={index}
-              style={{
-                marginBottom: 0,
-                
-                backgroundColor: "transparent",
-                borderRadius: 10,
-              }}
-            >
-              
-              <View style={styles.mealcontainer}>
-              <View style={{}}>
-              <Text style={{marginLeft:15,fontWeight:'bold',fontSize:15,color:'#640D5F'}}>{item.name}</Text>
-              <Text style={{marginLeft:15,fontWeight:300,color:'black',backgroundColor:'transparent',width:180}}>From: {item.source}</Text>
-              <Text style={{marginLeft:15,fontWeight:300,color:'black'}}>Serving: {item.servingSize} {item.servingSizeUnit}</Text>
-              </View>
-              <View style={styles.rightcontainer}>
-                <FontAwesome5 name="fire-alt" size={24} color="#D91656"/>
-                <View style={{width:70,height:25,justifyContent:'center',paddingLeft:3}}>
-                  <Text style={{color:'white',fontWeight:'bold',textAlignVertical:'center',textAlign:'center',fontSize:17}}>{item.calories*item.amount} cal</Text>
+          {meals
+            .filter((meal) => meal.time == "Breakfast")
+            .map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  marginBottom: 0,
+
+                  backgroundColor: "transparent",
+                  borderRadius: 10,
+                }}
+              >
+                <View style={styles.mealcontainer}>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: "bold",
+                        fontSize: 15,
+                        color: "#640D5F",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                        backgroundColor: "transparent",
+                        width: 180,
+                      }}
+                    >
+                      From: {item.source}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                      }}
+                    >
+                      Serving: {item.servingSize.toFixed(1)} {item.servingSizeUnit} * {item.amount}
+                    </Text>
+                  </View>
+                  <View style={styles.rightcontainer}>
+                    <FontAwesome5 name="fire-alt" size={24} color="#D91656" />
+                    <View
+                      style={{
+                        width: 70,
+                        height: 25,
+                        justifyContent: "center",
+                        paddingLeft: 3,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "bold",
+                          textAlignVertical: "center",
+                          textAlign: "center",
+                          fontSize: 17,
+                        }}
+                      >
+                        {item.calories * item.amount} cal
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
-              </View>
-            </View>
-          ))}
-          <Text
-            style={{
-              fontWeight: 200,
-              fontSize: 15,
-              marginTop: 10,
-              marginBottom: 10,
-            }}
-          >
+            ))}
+
+          <Text style={{ fontWeight: 200, fontSize: 15, fontStyle: "italic" }}>
             Lunch
           </Text>
+          {meals
+            .filter((meal) => meal.time == "Lunch")
+            .map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  marginBottom: 0,
 
-          <Text
-            style={{
-              fontWeight: 200,
-              fontSize: 15,
-              marginTop: 10,
-              marginBottom: 10,
-            }}
-          >
+                  backgroundColor: "transparent",
+                  borderRadius: 10,
+                }}
+              >
+                <View style={styles.mealcontainer}>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: "bold",
+                        fontSize: 15,
+                        color: "#640D5F",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                        backgroundColor: "transparent",
+                        width: 180,
+                      }}
+                    >
+                      From: {item.source}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                      }}
+                    >
+                      Serving: {item.servingSize.toFixed(1)} {item.servingSizeUnit} * {item.amount}
+                    </Text>
+                  </View>
+                  <View style={styles.rightcontainer}>
+                    <FontAwesome5 name="fire-alt" size={24} color="#D91656" />
+                    <View
+                      style={{
+                        width: 70,
+                        height: 25,
+                        justifyContent: "center",
+                        paddingLeft: 3,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "bold",
+                          textAlignVertical: "center",
+                          textAlign: "center",
+                          fontSize: 17,
+                        }}
+                      >
+                        {item.calories * item.amount} cal
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ))}
+
+          <Text style={{ fontWeight: 200, fontSize: 15, fontStyle: "italic" }}>
             Dinner
           </Text>
-          {/* optional lunch Container */}
-          <View style={styles.bottomContainer}>
-            <Text
-              style={{
-                fontWeight: 200,
-                fontSize: 15,
-                marginTop: 10,
-                marginBottom: 10,
-              }}
-            >
-              Lunch
-            </Text>
-          </View>
-          {/* optional dinner Container */}
-          <View style={styles.bottomContainer}>
-            <Text
-              style={{
-                fontWeight: 200,
-                fontSize: 15,
-                marginTop: 10,
-                marginBottom: 10,
-              }}
-            >
-              Dinner
-            </Text>
-          </View>
+          {meals
+            .filter((meal) => meal.time == "Dinner")
+            .map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  marginBottom: 0,
+
+                  backgroundColor: "transparent",
+                  borderRadius: 10,
+                }}
+              >
+                <View style={styles.mealcontainer}>
+                  <View style={{}}>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: "bold",
+                        fontSize: 15,
+                        color: "#640D5F",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                        backgroundColor: "transparent",
+                        width: 180,
+                      }}
+                    >
+                      From: {item.source}
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 15,
+                        fontWeight: 300,
+                        color: "black",
+                      }}
+                    >
+                      Serving: {item.servingSize.toFixed(1)} {item.servingSizeUnit} * {item.amount}
+                    </Text>
+                  </View>
+                  <View style={styles.rightcontainer}>
+                    <FontAwesome5 name="fire-alt" size={24} color="#D91656" />
+                    <View
+                      style={{
+                        width: 70,
+                        height: 25,
+                        justifyContent: "center",
+                        paddingLeft: 3,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "bold",
+                          textAlignVertical: "center",
+                          textAlign: "center",
+                          fontSize: 17,
+                        }}
+                      >
+                        {item.calories * item.amount} cal
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ))}
         </View>
       </ScrollView>
     </View>

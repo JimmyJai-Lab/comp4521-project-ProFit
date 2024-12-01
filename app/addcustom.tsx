@@ -1,18 +1,17 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
-
-const AddCustome = () => {
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import FoodItem from "@/services/food/FoodItem";
+const AddCustom = () => {
   const [formData, setFormData] = useState({
-    foodName: "",
-    userName: "",
+    name: "",
     calories: "",
     protein: "",
     carbs: "",
     fat: "",
-    source: "",
-    servings: "",
-    unit: "",
-    amount: "",
+    servingSize: "",
+    servingSizeUnit: "",
   });
 
   // Handle form field changes
@@ -26,50 +25,58 @@ const AddCustome = () => {
   // Handle submit button click
   const handleSubmit = () => {
     // Validate form data before submission
-    if (!formData.foodName || !formData.userName || !formData.calories) {
+    if (!formData.name || !formData.calories) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
 
-    // For now, simply log the form data
-    console.log("Submitted Data:", formData);
+    const foodItem = {
+      name: formData.name,
+      calories: parseFloat(formData.calories),
+      macros: {
+        protein: parseFloat(formData.protein),
+        carbs: parseFloat(formData.carbs),
+        fat: parseFloat(formData.fat),
+      },
+      servingSize: parseFloat(formData.servingSize),
+      servingSizeUnit: formData.servingSizeUnit,
+      source: auth().currentUser?.displayName
+    };
 
-    // Show a success message
-    Alert.alert("Success", "Item added successfully!");
+    firestore()
+      .collection('users')
+      .doc(auth().currentUser?.uid)
+      .collection('custom_foods')
+      .add({...foodItem})
+      .then(() => {
+      Alert.alert("Success", "Item added successfully!");
+      })
+      .catch((error) => {
+      console.error("Error adding custom food: ", error);
+      });
 
     // Reset the form
     setFormData({
-      foodName: "",
-      userName: "",
+      name: "",
       calories: "",
       protein: "",
       carbs: "",
       fat: "",
-      source: "",
-      servings: "",
-      unit: "",
-      amount: "",
+      servingSize: "",
+      servingSizeUnit: "",
     });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Add Custome Item</Text>
+      <Text style={styles.title}>Add Custom Item</Text>
       <View style={styles.formcontainer}>
       {/* Food Name Input */}
       <TextInput
         style={styles.topinput}
         placeholder="Food Name"
-        value={formData.foodName}
-        onChangeText={(value) => handleInputChange("foodName", value)}
-      />
-
-      {/* User Name Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="User Name"
-        value={formData.userName}
-        onChangeText={(value) => handleInputChange("userName", value)}
+        value={formData.name}
+        onChangeText={(value) => handleInputChange("name", value)}
       />
 
       {/* Calories Input */}
@@ -108,38 +115,21 @@ const AddCustome = () => {
         onChangeText={(value) => handleInputChange("fat", value)}
       />
 
-      {/* Source Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Source"
-        value={formData.source}
-        onChangeText={(value) => handleInputChange("source", value)}
-      />
-
       {/* Servings Input */}
       <TextInput
         style={styles.input}
         placeholder="Servings"
-        value={formData.servings}
+        value={formData.servingSize}
         keyboardType="numeric"
-        onChangeText={(value) => handleInputChange("servings", value)}
+        onChangeText={(value) => handleInputChange("servingSize", value)}
       />
 
       {/* Unit Input */}
       <TextInput
         style={styles.input}
         placeholder="Unit (e.g., grams, cups)"
-        value={formData.unit}
-        onChangeText={(value) => handleInputChange("unit", value)}
-      />
-
-      {/* Amount Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Amount"
-        value={formData.amount}
-        keyboardType="numeric"
-        onChangeText={(value) => handleInputChange("amount", value)}
+        value={formData.servingSizeUnit}
+        onChangeText={(value) => handleInputChange("servingSizeUnit", value)}
       />
 
       {/* Submit Button */}
@@ -211,4 +201,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCustome;
+export default AddCustom;
