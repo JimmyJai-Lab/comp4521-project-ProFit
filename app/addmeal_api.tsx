@@ -52,6 +52,7 @@ export default function MealAPI() {
           })}
         </ScrollView>
       )}
+      
     </View>
   );
 }
