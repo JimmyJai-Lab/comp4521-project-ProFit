@@ -21,6 +21,19 @@ export default function RootLayout() {
         />
         <Stack.Screen name="addmeal" />
         <Stack.Screen name="addexercise_api" />
+        <Stack.Screen name="comment_page" 
+        options={{
+          headerShown: true,
+          headerTitle:''
+        }}
+        />
+        <Stack.Screen name="comment_addfood" 
+        options={{
+          headerShown: true,
+          headerTitle:'Customed Food Item',
+          headerTitleAlign:'center'
+        }}
+        />
       </Stack>
     </UserProvider>
   );

@@ -6,36 +6,45 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
 import Post from '@/services/community/Post';
+import { router } from 'expo-router';
+import AddPostFood from './AddPostFood';
 
 const AddPost = ({ post }: { post: Post }) => {
     
     return(
         <View style={styles.container}>
             <View style={{}}>
-            <Image source={require('../assets/images/bur.jpg')} style={{height:60,width:60,borderRadius:30}}/>
+            <Image source={require('../assets/images/bur.jpg')} style={{height:60,width:60,borderRadius:30,marginLeft:5,marginTop:15}}/>
             </View>
 
             <View style={{marginHorizontal:10}}>
             <View style={styles.userbar}>
             <Text style={{fontSize:18}}>{post.username}</Text>
-            <View style={{flexDirection:'row',width:80}}>
+            <View style={{width:120,backgroundColor:'transparent',alignItems:'flex-end'}}>
             <Text style={{fontWeight:200}}>{new Date(post.date).toDateString()}</Text>
-            <TouchableOpacity style={{marginLeft:30}}>
-            <Entypo name="dots-three-horizontal" size={18} color="black" />
-            </TouchableOpacity>
+            
             </View>
             </View>
-            <Text style={{width:275, maxHeight:500,backgroundColor:'transparent'}}>{post.content}</Text>
+            <Text style={{width:250,backgroundColor:'transparent',maxHeight:500}}>{post.content}</Text>
+            {/* Cutome Food item showing part */}
+            <View>
+            <View style={{backgroundColor:'transparent',alignSelf:'flex-start'}}>
+                <AddPostFood/>
+                <AddPostFood/>
+                <AddPostFood/>
+            </View>
+            </View>            
+            
             <View style={styles.functionbar}>
             <TouchableOpacity>
             <AntDesign name="hearto" size={24} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.functionbutton}>
+            <TouchableOpacity style={styles.functionbutton}
+            onPress={() => router.navigate('/comment_page')}
+            >
             <FontAwesome5 name="comment" size={24} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity>
-            <Feather name="send" size={24} color="black" />
-            </TouchableOpacity>
+            
             </View>
             <Text style={{fontWeight:200}}>{post.likes} likes</Text>
             </View>
@@ -48,30 +57,35 @@ const AddPost = ({ post }: { post: Post }) => {
 
 const styles = StyleSheet.create({
     container: {
-        height:150,
+        minHeight:100,
+        maxHeight:700,
         width:350,
-        backgroundColor: 'transparent',
+        backgroundColor: '#FEF3E2',
         flexDirection:'row',
         alignSelf:'center',
-        
+        marginVertical:5
       },
     userbar:{
         backgroundColor:'transparent',
         flexDirection:'row',
-        width:275,
+        width:270,
         justifyContent:'space-between',
         alignItems:'center',
         marginVertical:3,
     },
     functionbar:{
         flexDirection:'row',
-        width:150,
+        width:100,
         alignItems:'center',
         marginVertical:3,
         justifyContent:'flex-start',
     },
     functionbutton:{
         marginHorizontal:15,
+    },
+    fooditem: {
+        marginVertical: 10, // Adds spacing around the entire container
+        flexDirection: "column",
     },
 })
 

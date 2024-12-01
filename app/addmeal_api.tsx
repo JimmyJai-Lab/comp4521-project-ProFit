@@ -55,18 +55,24 @@ export default function MealAPI() {
         <Text style={styles.text}>Loading...</Text>
       ) : (
         <ScrollView>
-          <Text style={styles.text}>Users':</Text>
+          <View style={styles.usercontainer}>
+          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>Users':</Text>
           {customFoodItems.map((item, index) => {
             return <AddFoodItem key={`custom-${index}`} item={item} />;
           })}
-          <Text style={styles.text}>FNDDS (Common food item):</Text>
+          </View>
+          <View style={styles.fnddcontainer}>
+          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>FNDDS (Common food item):</Text>
           {commonFoodItems.map((item, index) => {
             return <AddFoodItem key={`common-${index}`} item={item} />;
           })}
-          <Text style={styles.text}>Branded:</Text>
+          </View>
+          <View style={styles.brandcontainer}>
+          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>Branded:</Text>
           {brandedFoodItems.map((item, index) => {
             return <AddFoodItem key={`branded-${index}`} item={item} />;
           })}
+          </View>
         </ScrollView>
       )}
       
@@ -77,10 +83,33 @@ export default function MealAPI() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   text: {
     color: '#000000',
+  },
+  usercontainer:{
+    minHeight:200,
+    backgroundColor:'#afbdd6',
+    borderRadius:30,
+    margin:10,
+    flex:1
+  },
+  fnddcontainer:{
+    minHeight:200,
+    backgroundColor:'#afbdd6',
+    borderRadius:30,
+    margin:10,
+    flex:1
+
+  },
+  brandcontainer:{
+    minHeight:200,
+    backgroundColor:'#afbdd6',
+    borderRadius:30,
+    margin:10,
+    flex:1,
+    marginBottom:60
   },
 });
