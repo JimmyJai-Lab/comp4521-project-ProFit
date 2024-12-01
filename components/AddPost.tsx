@@ -7,6 +7,7 @@ import Feather from '@expo/vector-icons/Feather';
 import Post from '@/services/community/Post';
 import { router } from 'expo-router';
 import AddPostFood from './AddPostFood';
+import { useState } from 'react';
 
 const AddPost = ({ post }: { post: Post }) => {
     const [like, setLike] = useState(false);

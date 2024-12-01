@@ -1,4 +1,4 @@
-import { ScrollView, View, StyleSheet, Text } from 'react-native';
+import { ScrollView, View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { SearchBar } from '@rneui/themed';
 import { useState } from 'react';
 import foodSearchService from '@/services/food/FoodSearch';
@@ -21,18 +21,40 @@ export default function MealAPI() {
   const searchFood = async (searchQuery: string) => {
     setIsLoading(true);
 
-    const snapshot = await firestore()
-      .collection("users")
-      .doc(auth().currentUser?.uid)
-      .collection("custom_foods")
-      .where("name", "==", searchQuery)
-      .get()
+    var currentUserCustomFoodItems;
+    try {
+      currentUserCustomFoodItems = await firestore()
+        .collection("users")
+        .doc(auth().currentUser?.uid)
+        .collection("custom_foods")
+        .where("name", "==", searchQuery)
+        .limit(4)
+        .get()
+    } catch (error) {
+      console.error("Error fetching custom food items: ", error);
+    }
 
-    setCustomFoodItems(snapshot.docs.map((doc) => doc.data() as FoodItem));
+    // setCustomFoodItems(snapshot.docs.map((doc) => doc.data() as FoodItem));
+
+    var usersCustomFoodItems;
+    try {
+      usersCustomFoodItems = await firestore()
+        .collection("custom_foods_from_users")
+        .where("name", "==", searchQuery)
+        .where("source", "!=", auth().currentUser?.displayName)
+        .limit(4)
+        .get()
+    } catch (error) {
+      console.error("Error fetching custom food items from users: ", error);
+    }
+
+    const customFoodItems = currentUserCustomFoodItems ? currentUserCustomFoodItems.docs.map((doc) => doc.data() as FoodItem) : [];
+    const usersCustomFoodItemsData = usersCustomFoodItems ? usersCustomFoodItems.docs.map((doc) => doc.data() as FoodItem) : [];
+    setCustomFoodItems(customFoodItems.concat(usersCustomFoodItemsData));
 
 
-    setCommonFoodItems(await foodSearchService.searchCommonFoods(searchQuery, 5));
-    setBrandedFoodItems(await foodSearchService.searchBrandedFoods(searchQuery, 5));
+    setCommonFoodItems(await foodSearchService.searchCommonFoods(searchQuery, 8));
+    setBrandedFoodItems(await foodSearchService.searchBrandedFoods(searchQuery, 8));
     setIsLoading(false);
   }
 
@@ -52,17 +74,19 @@ export default function MealAPI() {
         onSubmitEditing={() => searchFood(search)}
       />
       {isLoading ? (
-        <Text style={styles.text}>Loading...</Text>
+        <View style={{ marginTop: 20 }}>
+          <ActivityIndicator size='large' />
+        </View>
       ) : (
         <ScrollView>
           <View style={styles.usercontainer}>
-          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>Users':</Text>
+          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>From users:</Text>
           {customFoodItems.map((item, index) => {
             return <AddFoodItem key={`custom-${index}`} item={item} />;
           })}
           </View>
           <View style={styles.fnddcontainer}>
-          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>FNDDS (Common food item):</Text>
+          <Text style={{margin:15,marginBottom:0,fontSize:20,fontStyle:'italic',fontWeight:'bold',color:'#B03052'}}>From FNDDS (Common food item):</Text>
           {commonFoodItems.map((item, index) => {
             return <AddFoodItem key={`common-${index}`} item={item} />;
           })}

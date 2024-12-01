@@ -16,23 +16,40 @@ export default function RootLayout() {
           name="(tabs)"
           options={{
             headerShown: false,
-            animation: 'none'
+            animation: "none",
           }}
         />
-        <Stack.Screen name="addmeal" />
-        <Stack.Screen name="addexercise_api" />
-        <Stack.Screen name="comment_page" 
-        options={{
-          headerShown: true,
-          headerTitle:''
-        }}
+        <Stack.Screen
+          name="addmeal"
+          options={{
+            headerShown: true,
+            headerTitle: "Add Meal",
+            headerTitleAlign: "center",
+          }}
         />
-        <Stack.Screen name="comment_addfood" 
-        options={{
-          headerShown: true,
-          headerTitle:'Customed Food Item',
-          headerTitleAlign:'center'
-        }}
+        <Stack.Screen
+          name="addmeal_api"
+          options={{
+            headerShown: true,
+            headerTitle: "Search Items",
+            headerTitleAlign: "center",
+          }}
+        />
+        <Stack.Screen name="addexercise_api" />
+        <Stack.Screen
+          name="comment_page"
+          options={{
+            headerShown: true,
+            headerTitle: "",
+          }}
+        />
+        <Stack.Screen
+          name="comment_addfood"
+          options={{
+            headerShown: true,
+            headerTitle: "Custom Food Items",
+            headerTitleAlign: "center",
+          }}
         />
       </Stack>
     </UserProvider>

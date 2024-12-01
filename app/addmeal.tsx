@@ -108,7 +108,7 @@ export default function CommunityScreen() {
               fontWeight: "bold",
             }}
           >
-            Search Item
+            Search Items
           </Text>
         </TouchableOpacity>
       </View>

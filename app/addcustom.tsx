@@ -49,10 +49,17 @@ const AddCustom = () => {
       .collection('custom_foods')
       .add({...foodItem})
       .then(() => {
-      Alert.alert("Success", "Item added successfully!");
+        Alert.alert("Success", "Item added successfully!");
       })
       .catch((error) => {
-      console.error("Error adding custom food: ", error);
+        console.error("Error adding custom food: ", error);
+      });
+
+    firestore()
+      .collection('custom_foods_from_users')
+      .add({...foodItem})
+      .catch((error) => {
+        console.error("Error adding custom food to community: ", error);
       });
 
     // Reset the form
