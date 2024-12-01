@@ -91,7 +91,7 @@ const AddFoodItem = ({ item }: {item : FoodItem}) => {
 			<Text style={{fontSize:20,color:'#640D5F',fontWeight:'bold'}}>{item.name}</Text>
 			<Text style={{fontWeight:300,color:'#640D5F',fontStyle:'italic'}}>From {item.source}</Text>
 			<Text style={{fontWeight:'bold',fontSize:20,color:'#640D5F'}}>{item.calories} Cals</Text>
-			<Text style={{fontWeight:300,fontSize:15,color:'#640D5F',fontStyle:'italic'}}>ServingSize: {item.servingSize} {item.servingSizeUnit}</Text>
+			<Text style={{fontWeight:300,fontSize:15,color:'#640D5F',fontStyle:'italic'}}>ServingSize: {item.servingSize.toFixed(1)} {item.servingSizeUnit}</Text>
 			</View>
 
 			
