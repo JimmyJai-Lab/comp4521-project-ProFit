@@ -10,6 +10,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Easing } from 'react-native';
 import Animated, { withSpring } from 'react-native-reanimated';
+import { useFocusEffect } from 'expo-router';
 
 // Updated interface to match Firebase data structure
 interface Exercise {
@@ -32,6 +33,14 @@ export default function FitnessScreen() {
   // State for exercises
   const [exercises, setExercises] = React.useState<Exercise[]>([]);
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+
+  // Add this new effect
+  useFocusEffect(
+    React.useCallback(() => {
+      // Refresh exercises when screen comes into focus
+      fetchExercises(selectedDate);
+    }, [selectedDate])
+  );
 
   // Function to calculate total sets and volume
   const calculateStats = (exerciseData: Exercise[]) => {
