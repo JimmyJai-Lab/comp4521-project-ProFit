@@ -61,43 +61,52 @@ const AddExercise = ({ item }: { item: any }) => {
 
     return (
         <View style={styles.container}>
-            <View style={{ width: 120, backgroundColor: 'transparent', height: 100 }}>
-                <Text style={{ fontSize: 20, color: '#1c438b', fontWeight: 'bold', paddingTop: 10 }}>{item.name}</Text>
+            <View style={styles.exerciseInfo}>
+                <Text style={styles.exerciseName}>{item.name}</Text>
+                <Text style={styles.description} numberOfLines={2}>
+                    {item.description}
+                </Text>
             </View>
 
-            <View style={{ backgroundColor: 'transparent', width: 180, marginLeft: 5 }}>
-                <View style={{ alignSelf: 'center', flexDirection: 'row', width: 180 }}>
+            <View style={styles.inputContainer}>
+                <View style={styles.inputRow}>
                     <TextInput
                         mode='outlined'
-                        label="Rep"
+                        label="Reps"
                         value={rep}
                         onChangeText={setRep}
                         keyboardType="numeric"
-                        style={{ flex: 1 }}
+                        style={styles.input}
+                        outlineColor="#7743CE"
+                        activeOutlineColor="#7743CE"
                     />
                     <TextInput
                         mode='outlined'
-                        label="Set"
+                        label="Sets"
                         value={set}
                         onChangeText={setSet}
                         keyboardType="numeric"
-                        style={{ flex: 1 }}
+                        style={styles.input}
+                        outlineColor="#7743CE"
+                        activeOutlineColor="#7743CE"
                     />
                     <TextInput
                         mode='outlined'
-                        label="Kg"
+                        label="Weight"
                         value={weight}
                         onChangeText={setWeight}
                         keyboardType="numeric"
-                        style={{ flex: 1 }}
+                        style={styles.input}
+                        outlineColor="#7743CE"
+                        activeOutlineColor="#7743CE"
                     />
                 </View>
 
                 <TouchableOpacity
-                    style={{ backgroundColor: '#75E6DA', borderRadius: 20, height: 40, width: 100, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' }}
+                    style={styles.addButton}
                     onPress={handleAddExercise}
                 >
-                    <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black', padding: 4 }}>Add</Text>
+                    <Text style={styles.addButtonText}>Add Exercise</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -108,14 +117,54 @@ export default AddExercise;
 
 const styles = StyleSheet.create({
     container: {
-        height: 120,
-        width: 360,
-        backgroundColor: 'white',
-        margin: 10,
-        borderRadius: 15,
-        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        margin: 8,
+        borderRadius: 12,
+        padding: 12,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    exerciseInfo: {
+        marginBottom: 8,
+    },
+    exerciseName: {
+        fontSize: 16,
+        color: '#7743CE',
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    description: {
+        color: '#666',
+        fontSize: 12,
+        marginBottom: 4,
+    },
+    inputContainer: {
+        gap: 8,
+    },
+    inputRow: {
         flexDirection: 'row',
-        alignSelf: 'center'
+        gap: 6,
+    },
+    input: {
+        flex: 1,
+        backgroundColor: 'white',
+        fontSize: 12,
+        height: 45,
+    },
+    addButton: {
+        backgroundColor: '#7743CE',
+        borderRadius: 20,
+        padding: 8,
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    addButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 14,
     },
 });
 

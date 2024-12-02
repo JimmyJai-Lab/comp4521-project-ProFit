@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import * as React from 'react';
 import CalendarStrip from 'react-native-calendar-strip';
 import { FlashList } from "@shopify/flash-list";
@@ -111,6 +111,30 @@ export default function FitnessScreen() {
     fetchExercises(selectedDate);
   }, [selectedDate]);
 
+  // Add this function inside FitnessScreen component
+  const handleDeleteExercise = async (exerciseId: string) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      // Delete from Firebase
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercises')
+        .doc(exerciseId)
+        .delete();
+
+      // Update local state
+      const updatedExercises = exercises.filter(exercise => exercise.id !== exerciseId);
+      setExercises(updatedExercises);
+      calculateStats(updatedExercises);
+
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+    }
+  };
+
   const renderExerciseItem = ({ item }: { item: Exercise }) => (
     <View style={styles.mealcontainer}>
       <View style={{ flex: 1 }}>
@@ -132,87 +156,110 @@ export default function FitnessScreen() {
           />
         </View>
       </View>
-      <TouchableOpacity
-        style={[
-          styles.checkButton,
-          { backgroundColor: item.completedSets === item.sets ? '#4CAF50' : '#75E6DA' }
-        ]}
-        onPress={() => handleSetCompletion(item.id, item.completedSets || 0, item.sets)}
-      >
-        <Text style={styles.checkButtonText}>
-          {item.completedSets === item.sets ? 'Reset' : 'Complete Set'}
-        </Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity
+          style={[
+            styles.checkButton,
+            { backgroundColor: item.completedSets === item.sets ? '#4CAF50' : '#75E6DA' }
+          ]}
+          onPress={() => handleSetCompletion(item.id, item.completedSets || 0, item.sets)}
+        >
+          <Text style={styles.checkButtonText}>
+            {item.completedSets === item.sets ? 'Reset' : 'Complete Set'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.deleteButton]}
+          onPress={() => handleDeleteExercise(item.id)}
+        >
+          <FontAwesome5 name="trash" size={16} color="#FF0000" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <CalendarStrip
-        style={{ height: 80, paddingTop: 5, paddingBottom: 5 }}
-        calendarHeaderStyle={{ color: 'white', fontSize: 15 }}
-        calendarColor={'#7743CE'}
-        dateNumberStyle={{ color: 'white', fontSize: 15 }}
-        dateNameStyle={{ color: 'white', fontSize: 15 }}
-        highlightDateNumberStyle={{ color: 'yellow', fontSize: 15 }}
-        highlightDateNameStyle={{ color: 'yellow', fontSize: 15 }}
-        onDateSelected={(date) => setSelectedDate(date.toDate())}
-      />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <CalendarStrip
+          calendarAnimation={{ type: "sequence", duration: 30 }}
+          daySelectionAnimation={{
+            type: "border",
+            duration: 200,
+            borderWidth: 1,
+            borderHighlightColor: "white",
+          }}
+          style={{ height: 80, paddingTop: 5, paddingBottom: 5 }}
+          calendarHeaderStyle={{ color: "white", fontSize: 15 }}
+          calendarColor={"#7743CE"}
+          dateNumberStyle={{ color: "white", fontSize: 10 }}
+          dateNameStyle={{ color: "white", fontSize: 10 }}
+          highlightDateNumberStyle={{ color: "yellow", fontSize: 10 }}
+          highlightDateNameStyle={{ color: "yellow", fontSize: 10 }}
+          disabledDateNameStyle={{ color: "grey", fontSize: 10 }}
+          disabledDateNumberStyle={{ color: "grey", fontSize: 10 }}
+          iconContainer={{ flex: 0.1, fontSize: 10 }}
+          selectedDate={new Date()}
+          onDateSelected={(date) => {
+            setSelectedDate(date.toDate());
+          }}
+        />
 
-      <ScrollView>
-        <View style={styles.progressContainer}>
-          <AnimatedCircularProgress
-            size={200}
-            width={15}
-            fill={(currentSets / targetSets) * 100 || 0}
-            tintColor="#7743CE"
-            backgroundColor="#E7DDFF"
-            duration={1000}
-            easing={Easing.out(Easing.ease)}
-            rotation={0}
-            lineCap="round"
-          >
-            {(fill) => (
-              <View style={{ alignItems: 'center' }}>
-                <Animated.Text
-                  style={{
-                    fontSize: 30,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {currentSets}
-                </Animated.Text>
-                <Text style={{ fontSize: 16 }}>of {targetSets} sets</Text>
+        <ScrollView>
+          <View style={styles.progressContainer}>
+            <AnimatedCircularProgress
+              size={200}
+              width={15}
+              fill={(currentSets / targetSets) * 100 || 0}
+              tintColor="#7743CE"
+              backgroundColor="#E7DDFF"
+              duration={1000}
+              easing={Easing.out(Easing.ease)}
+              rotation={0}
+              lineCap="round"
+            >
+              {(fill) => (
+                <View style={{ alignItems: 'center' }}>
+                  <Animated.Text
+                    style={{
+                      fontSize: 30,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {currentSets}
+                  </Animated.Text>
+                  <Text style={{ fontSize: 16 }}>of {targetSets} sets</Text>
+                </View>
+              )}
+            </AnimatedCircularProgress>
+
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Text style={styles.statLabel}>Volume</Text>
+                <Text style={styles.statValue}>{volume} kg</Text>
               </View>
-            )}
-          </AnimatedCircularProgress>
-
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Volume</Text>
-              <Text style={styles.statValue}>{volume} kg</Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.exercisesHeader}>
-          <Text style={styles.heading}>Today's Exercises</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.navigate('/addexercise_api')}>
-            <Text style={styles.addButtonText}>Add Exercise</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.exercisesHeader}>
+            <Text style={styles.heading}>Today's Exercises</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.navigate('/addexercise_api')}>
+              <Text style={styles.addButtonText}>Add Exercise</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.exerciseList}>
-          {exercises.map((exercise, index) => (
-            <View key={index}>
-              {renderExerciseItem({ item: exercise })}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </View>
+          <View style={styles.exerciseList}>
+            {exercises.map((exercise, index) => (
+              <View key={index}>
+                {renderExerciseItem({ item: exercise })}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -310,5 +357,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     color: 'black',
+  },
+  deleteButton: {
+    borderRadius: 20,
+    padding: 8,
+    marginLeft: 10,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFE5E5',
+    shadowColor: '#FF0000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+    transform: [{ scale: 0.9 }],
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#7743CE', // Same as calendarColor
   },
 });
