@@ -56,11 +56,27 @@ const AddPostFood = ({ foodItems } : { foodItems: Array<FoodItem>}) => {
                 </View>
               </View>
             </View>
-            <Modal isVisible={showMarco} onBackdropPress={() => setShowMarco(!showMarco)}>
-              <View style={{ backgroundColor: "white", padding: 20 }}>
-                <Text>{foodItem.macros.carbs}</Text>
-                <Text>{foodItem.macros.protein}</Text>
-                <Text>{foodItem.macros.fat}</Text>
+            <Modal
+              isVisible={showMarco}
+              onBackdropPress={() => setShowMarco(!showMarco)}
+            >
+              <View
+                style={{
+                  backgroundColor: "#EEEEEE",
+                  padding: 20,
+                  alignItems: "center",
+                  width: 170,
+                  alignSelf: "center",
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={styles.smallbar}>
+                  Crabs: {foodItem.macros.carbs}
+                </Text>
+                <Text style={styles.smallbar}>
+                  Proteins: {foodItem.macros.protein}
+                </Text>
+                <Text style={styles.smallbar}>Fats: {foodItem.macros.fat}</Text>
               </View>
             </Modal>
           </TouchableOpacity>
@@ -72,35 +88,46 @@ const AddPostFood = ({ foodItems } : { foodItems: Array<FoodItem>}) => {
 
 const styles = StyleSheet.create({
   mealcontainer: {
-    backgroundColor:'#cfcfce',
-    width:270,
-    height:30,
-    minHeight:30,    
-    borderRadius:25,
-    alignSelf:'center',
-    flexDirection:'row',
-    justifyContent:'space-between',
-    padding:5,                         
-    alignItems:'center',
-    marginVertical:1
+    backgroundColor: "#cfcfce",
+    width: 270,
+    height: 30,
+    minHeight: 30,
+    borderRadius: 25,
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 5,
+    alignItems: "center",
+    marginVertical: 1,
   },
-  rightcontainer:{
-      flexDirection:'row',
-      backgroundColor:'#adbbd5',
-      borderRadius:20,
-      width:115,
-      height:30,
-      alignItems:'center',
-      marginRight:50,     
+  rightcontainer: {
+    flexDirection: "row",
+    backgroundColor: "#adbbd5",
+    borderRadius: 20,
+    width: 115,
+    height: 30,
+    alignItems: "center",
+    marginRight: 50,
   },
-  confirmbutton:{
-    backgroundColor:'#FFB200',
-    borderRadius:20,
-    width:50,
-    height:50,
-    alignItems:'center',
-    justifyContent:'center',
-    marginLeft:10
+  confirmbutton: {
+    backgroundColor: "#FFB200",
+    borderRadius: 20,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+  },
+  smallbar: {
+    fontSize: 15,
+    fontWeight: 300,
+    color: "white",
+    fontStyle: "italic",
+    backgroundColor: "#7743CE",
+    borderRadius: 10,
+    marginVertical: 5,
+    textAlign: "center",
+    width: 150,
   },
 });
 

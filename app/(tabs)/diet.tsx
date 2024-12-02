@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
     backgroundColor:"#EEEEEE",
     borderRadius: 25,
     flex: 1,
-    width: 340,
+    width: 370,
     alignSelf:'center',
     padding:10,
   },

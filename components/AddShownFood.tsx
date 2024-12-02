@@ -46,7 +46,6 @@ export default function AddShownFood({ foodItems }: { foodItems: Array<FoodItem>
                   justifyContent: "center",
                   paddingLeft: 3,
                   backgroundColor: "transparent",
-                  marginLeft: 5,
                 }}
               >
                 <Text
@@ -61,11 +60,7 @@ export default function AddShownFood({ foodItems }: { foodItems: Array<FoodItem>
                   {foodItem.calories} cal
                 </Text>
               </View>
-              <TouchableOpacity>
-                <View style={styles.confirmbutton}>
-                  <Entypo name="cross" size={24} color="black" />
-                </View>
-              </TouchableOpacity>
+              
             </View>
           </View>
         );
@@ -76,35 +71,35 @@ export default function AddShownFood({ foodItems }: { foodItems: Array<FoodItem>
 
 const styles = StyleSheet.create({
   mealcontainer: {
-    backgroundColor:'#cfcfce',
-    width:330,
-    height:"100%",
-    flex:1,
-    minHeight:60,    
-    borderRadius:25,
-    alignSelf:'center',
-    flexDirection:'row',
-    justifyContent:'space-between',
-    padding:5,      
-    marginVertical:5,                    
-    alignItems:'center'
+    backgroundColor: "#cfcfce",
+    width: 330,
+    height: "100%",
+    flex: 1,
+    minHeight: 60,
+    borderRadius: 25,
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 5,
+    marginVertical: 5,
+    alignItems: "center",
   },
-  rightcontainer:{
-      flexDirection:'row',
-      backgroundColor:'#adbbd5',
-      borderRadius:20,
-      width:110,
-      height:50,
-      alignItems:'center',
-      marginRight:50,     
+  rightcontainer: {
+    flexDirection: "row",
+    backgroundColor: "#adbbd5", //#adbbd5
+    borderRadius: 20,
+    width: 110,
+    height: 50,
+    alignItems: "center",
+    marginRight: 0,
   },
-  confirmbutton:{
-    backgroundColor:'#FFB200',
-    borderRadius:20,
-    width:50,
-    height:50,
-    alignItems:'center',
-    justifyContent:'center',
-    marginLeft:10
+  confirmbutton: {
+    backgroundColor: "#FFB200",
+    borderRadius: 20,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
   },
 });
