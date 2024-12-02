@@ -1,3 +1,5 @@
+import FoodItem from "../food/FoodItem";
+
 export default interface Post {
     id: string;
     content: string;
@@ -6,4 +8,6 @@ export default interface Post {
     username: string;
     likes: number;
     comments: Array<String>;
+    foodItems: Array<FoodItem>;
+    liked: boolean;
 }
