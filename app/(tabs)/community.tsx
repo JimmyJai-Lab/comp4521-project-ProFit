@@ -45,6 +45,7 @@ export default function CommunityScreen() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [foodModalVisible, setFoodModalVisible] = useState(false);
   const [recentFoods, setRecentFoods] = useState<Array<FoodItem>>([]);
+  const [sharedTemplates, setSharedTemplates] = useState<Template[]>([]);
 
   const updatePostText = (text: string) => {
     setPostText(text);
@@ -65,34 +66,44 @@ export default function CommunityScreen() {
         return;
       }
 
-      // Create the post with the fetched username
-      await firestore()
-        .collection('community_posts')
-        .add({
-          content: postText,
-          foodItems: foodItems,
-          date: new Date(),
-          uid: auth().currentUser?.uid,
-          username: username,  // Use the fetched username
-          likes: 0,
-          comments: []
-        });
-
-      // Clear the post text
-      setPostText('');
-
-      // Clear current community post collection
-      const snapshot = await firestore()
+      // Get all items from current_community_post
+      const currentPostSnapshot = await firestore()
         .collection('users')
         .doc(auth().currentUser?.uid)
         .collection('current_community_post')
         .get();
 
-      snapshot.docs.forEach(doc => {
-        doc.ref.delete();
-      });
+      const postItems = currentPostSnapshot.docs.map(doc => doc.data());
+      const foodItems = postItems.filter(item => !item.type || item.type === 'custom');
+      const templates = postItems.filter(item => item.type === 'template');
 
+      // Create the post with all items
+      await firestore()
+        .collection('community_posts')
+        .add({
+          content: postText,
+          foodItems: foodItems,
+          templates: templates,
+          date: new Date(),
+          uid: auth().currentUser?.uid,
+          username: username,
+          likes: 0,
+          comments: []
+        });
+
+      // Clear all states
+      setPostText('');
       setFoodItems([]);
+      setSharedTemplates([]);
+
+      // Delete all items from current_community_post
+      const batch = firestore().batch();
+      currentPostSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+
+      Alert.alert('Success', 'Post created successfully!');
     } catch (error) {
       console.error('Failed to add post:', error);
       Alert.alert('Error', 'Failed to create post');
@@ -147,8 +158,19 @@ export default function CommunityScreen() {
       .get()
       .then((snapshot) => {
         const data = snapshot.docs.map(doc => doc.data());
-        if (data.length > 0) {
-          setFoodItems(data as Array<FoodItem>);
+        const foodData = data.filter(item => !item.type || item.type === 'custom');
+        const templateData = data.filter(item => item.type === 'template');
+
+        if (foodData.length === 0) {
+          setFoodItems([]);
+        } else {
+          setFoodItems(foodData as Array<FoodItem>);
+        }
+
+        if (templateData.length === 0) {
+          setSharedTemplates([]);
+        } else {
+          setSharedTemplates(templateData as Array<Template>);
         }
       });
   };
@@ -315,9 +337,31 @@ export default function CommunityScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Added Food Items */}
+        {/* Added Food Items and Templates */}
         <ScrollView style={styles.foodItemsContainer}>
-          {foodItems ? <AddShownFood foodItems={foodItems} /> : null}
+          {foodItems && <AddShownFood foodItems={foodItems} />}
+          {sharedTemplates && sharedTemplates.length > 0 && (
+            <View style={styles.templateContainer}>
+              {sharedTemplates.map((template, index) => (
+                <View key={index} style={styles.sharedTemplateCard}>
+                  <View style={styles.templateCardHeader}>
+                    <MaterialIcons name="fitness-center" size={24} color="#7743CE" />
+                    <Text style={styles.templateCardTitle}>{template.name}</Text>
+                  </View>
+                  <ScrollView style={styles.templateExerciseList}>
+                    {template.exercises.map((exercise, idx) => (
+                      <View key={idx} style={styles.templateExerciseItem}>
+                        <Text style={styles.exerciseName}>{exercise.name}</Text>
+                        <Text style={styles.exerciseDetails}>
+                          {exercise.sets} sets × {exercise.reps} reps @ {exercise.weight}kg
+                        </Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              ))}
+            </View>
+          )}
         </ScrollView>
       </View>
 
@@ -396,18 +440,23 @@ export default function CommunityScreen() {
 
       <Modal isVisible={templateModalVisible} onBackdropPress={() => setTemplateModalVisible(false)}>
         <View style={styles.templateModal}>
-          <Text style={styles.templateModalTitle}>Select Template to Share</Text>
+          <Text style={styles.templateModalTitle}>Share Workout Template</Text>
           <ScrollView style={styles.templateList}>
             {templates.map((template) => (
               <TouchableOpacity
                 key={template.id}
                 style={styles.templateItem}
                 onPress={() => {
-                  setPostText(postText + `\n\nWorkout Template: ${template.name}\n` +
-                    template.exercises.map(ex =>
-                      `- ${ex.name}: ${ex.sets} sets × ${ex.reps} reps @ ${ex.weight}kg`
-                    ).join('\n')
-                  );
+                  firestore()
+                    .collection('users')
+                    .doc(auth().currentUser?.uid)
+                    .collection('current_community_post')
+                    .add({
+                      name: template.name,
+                      exercises: template.exercises,
+                      timestamp: new Date(),
+                      type: 'template'
+                    });
                   setTemplateModalVisible(false);
                 }}
                 onLongPress={() => {
@@ -718,4 +767,49 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 4
   },
+  templateContainer: {
+    marginTop: 10,
+    paddingHorizontal: 15,
+  },
+  sharedTemplateCard: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  templateCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  templateCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7743CE',
+    marginLeft: 10,
+  },
+  templateExerciseList: {
+    maxHeight: 120,
+  },
+  templateExerciseItem: {
+    backgroundColor: '#FFFFFF',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+  exerciseName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  exerciseDetails: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  }
 });
