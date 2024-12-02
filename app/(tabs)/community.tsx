@@ -51,35 +51,52 @@ export default function CommunityScreen() {
   };
 
   const sendPost = async () => {
-    await firestore()
-      .collection('community_posts')
-      .add({
-        content: postText,
-        foodItems: foodItems,
-        date: new Date(),
-        uid: auth().currentUser?.uid,
-        username: auth().currentUser?.displayName,
-        likes: 0
-      })
-      .then(() => {
-        setPostText('');
-      })
-      .catch((error) => {
-        console.error('Failed to add post:', error);
-      });
+    try {
+      // First fetch the username from Firestore
+      const userDoc = await firestore()
+        .collection('users')
+        .doc(auth().currentUser?.uid)
+        .get();
 
-    await firestore()
-      .collection('users')
-      .doc(auth().currentUser?.uid)
-      .collection('current_community_post')
-      .get()
-      .then((snapshot) => {
-        snapshot.docs.forEach(doc => {
-          doc.ref.delete();
+      const username = userDoc.data()?.username;
+
+      if (!username) {
+        Alert.alert('Error', 'Could not find username');
+        return;
+      }
+
+      // Create the post with the fetched username
+      await firestore()
+        .collection('community_posts')
+        .add({
+          content: postText,
+          foodItems: foodItems,
+          date: new Date(),
+          uid: auth().currentUser?.uid,
+          username: username,  // Use the fetched username
+          likes: 0,
+          comments: []
         });
+
+      // Clear the post text
+      setPostText('');
+
+      // Clear current community post collection
+      const snapshot = await firestore()
+        .collection('users')
+        .doc(auth().currentUser?.uid)
+        .collection('current_community_post')
+        .get();
+
+      snapshot.docs.forEach(doc => {
+        doc.ref.delete();
       });
 
-    setFoodItems([]);
+      setFoodItems([]);
+    } catch (error) {
+      console.error('Failed to add post:', error);
+      Alert.alert('Error', 'Failed to create post');
+    }
   };
 
   const updatePosts = async () => {
