@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet,Button,TouchableOpacity,Image,TextInput,ScrollView, RefreshControl, Alert } from 'react-native';
+import { Text, View, StyleSheet, Button, TouchableOpacity, Image, TextInput, ScrollView, RefreshControl, Alert } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -14,6 +14,24 @@ import AddShownFood from '@/components/AddShownFood';
 import FoodItem from '@/services/food/FoodItem';
 import Modal from 'react-native-modal';
 
+interface Exercise {
+  id: string;
+  exerciseId: number;
+  name: string;
+  weight: number;
+  sets: number;
+  reps: number;
+  date: string;
+  completedSets: number;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  exercises: Exercise[];
+  timestamp: Date;
+}
+
 export default function CommunityScreen() {
   const [postText, setPostText] = useState('');
   const [posts, setPosts] = useState<Array<Post>>([]);
@@ -22,6 +40,11 @@ export default function CommunityScreen() {
   const [isCommentVisible, setIsCommentVisible] = useState(false);
   const [currentPostComment, setCurrentPostComment] = useState('');
   const [filterLikedPosts, setFilterLikedPosts] = useState(false);
+  const [templateModalVisible, setTemplateModalVisible] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [foodModalVisible, setFoodModalVisible] = useState(false);
+  const [recentFoods, setRecentFoods] = useState<Array<FoodItem>>([]);
 
   const updatePostText = (text: string) => {
     setPostText(text);
@@ -55,7 +78,7 @@ export default function CommunityScreen() {
           doc.ref.delete();
         });
       });
-      
+
     setFoodItems([]);
   };
 
@@ -73,7 +96,7 @@ export default function CommunityScreen() {
       console.error('Error fetching liked posts: ', error);
     }
 
-    
+
 
     var data;
     try {
@@ -86,14 +109,14 @@ export default function CommunityScreen() {
         const docId = doc.id;
         data = doc.data();
         data.id = docId;
-        data.date = data.date.toDate(); 
-        data.liked = userLikedPosts?.docs.some(likedPost => likedPost.id === docId && likedPost.data().liked); ;
+        data.date = data.date.toDate();
+        data.liked = userLikedPosts?.docs.some(likedPost => likedPost.id === docId && likedPost.data().liked);;
         return data;
       });
     } catch (error) {
       console.log("Error getting documents: ", error);
     }
-    
+
 
     setPosts(data as Array<Post>);
 
@@ -112,7 +135,7 @@ export default function CommunityScreen() {
         }
       });
   };
-  
+
   const onRefresh = () => {
     setRefreshing(true);
     setPosts([]);
@@ -139,6 +162,65 @@ export default function CommunityScreen() {
     updateCommentVisible();
   }
 
+  const fetchTemplates = async () => {
+    try {
+      const snapshot = await firestore()
+        .collection('users')
+        .doc(auth().currentUser?.uid)
+        .collection('exercise_templates')
+        .orderBy('timestamp', 'desc')
+        .get();
+
+      const templatesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Template[];
+
+      setTemplates(templatesData);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+    }
+  };
+
+  const fetchRecentFoods = async () => {
+    try {
+      console.log("Fetching custom foods...");
+      const snapshot = await firestore()
+        .collection("users")
+        .doc(auth().currentUser?.uid)
+        .collection("custom_foods")
+        .get();
+
+      if (snapshot.empty) {
+        console.log("No custom foods found");
+        setRecentFoods([]);
+        return;
+      }
+
+      const foods = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        console.log("Food data:", data);
+        return {
+          name: data.name,
+          calories: data.calories,
+          macros: {
+            carbs: data.macros.carbs,
+            protein: data.macros.protein,
+            fat: data.macros.fat
+          },
+          servingSize: data.servingSize,
+          servingSizeUnit: data.servingSizeUnit,
+          source: 'custom'
+        } as FoodItem;
+      });
+
+      console.log("Processed foods:", foods);
+      setRecentFoods(foods);
+    } catch (error) {
+      console.error('Error fetching custom foods:', error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = firestore()
       .collection('community_posts')
@@ -161,61 +243,82 @@ export default function CommunityScreen() {
     return () => unsubscribe();
   });
 
-  
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  useEffect(() => {
+    fetchRecentFoods();
+  }, []);
+
   return (
     <View>
       {/* User Post */}
-      <View style={styles.user}>
-        <Image
-          source={require("../../assets/images/bur.jpg")}
-          style={{ height: 60, width: 60, borderRadius: 30, margin: 5 }}
-        />
-        <TouchableOpacity style={styles.textbox} disabled>
+      <View style={styles.userPostContainer}>
+        <View style={styles.userHeader}>
+          <Image
+            source={require("../../assets/images/pngwing.com.png")}
+            style={styles.userAvatar}
+          />
           <TextInput
-            placeholder="Let's share something here!"
-            maxLength={500}
-            style={{ fontWeight: 200 }}
+            style={styles.postInput}
+            placeholder="Share your fitness journey..."
+            multiline
             value={postText}
             onChangeText={updatePostText}
-            multiline={true}
-            editable={true}
-          ></TextInput>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ marginLeft: 15, backgroundColor: "transparent" }}
-          onPress={sendPost}
-        >
-          <Feather name="send" size={35} color="black" />
-        </TouchableOpacity>
-      </View>
-      {/* Added Food item shown place */}
-      <ScrollView style={{ maxHeight: 120, marginVertical: 5, minHeight: 20 }}>
-        {foodItems ? <AddShownFood foodItems={foodItems} /> : null}
-      </ScrollView>
+          />
+        </View>
 
-      {/* middle bar */}
-      <View style={styles.middlebar}>
-        <TouchableOpacity style={styles.middlebutton}>
-          <Text
-            style={{ textAlign: "center", fontSize: 20, fontWeight: 200 }}
-            onPress={() => router.navigate({ pathname: "/comment_addfood" })}
-          >
-            Add Food Item
-          </Text>
-        </TouchableOpacity>
+        {/* Post Actions */}
         <View>
-          <TouchableOpacity style={styles.middlebutton}>
-            <Text
-              style={{ textAlign: "center", fontSize: 20, fontWeight: 200 }}
-              onPress={() => {
-                setFilterLikedPosts(!filterLikedPosts);
-                console.log(filterLikedPosts);
-              }}
+          <View style={styles.shareActions}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setFoodModalVisible(true)}
             >
-              Liked Posts
-            </Text>
+              <Ionicons name="fast-food-outline" size={24} color="#7743CE" />
+              <Text style={styles.actionButtonText}>Share Food</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, { marginLeft: 15 }]}
+              onPress={() => setTemplateModalVisible(true)}
+            >
+              <MaterialIcons name="fitness-center" size={24} color="#7743CE" />
+              <Text style={styles.actionButtonText}>Share Template</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.sendButton, { marginTop: 10 }]}
+            onPress={sendPost}
+          >
+            <Feather name="send" size={24} color="#FFFFFF" />
+            <Text style={styles.sendButtonText}>Post</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Added Food Items */}
+        <ScrollView style={styles.foodItemsContainer}>
+          {foodItems ? <AddShownFood foodItems={foodItems} /> : null}
+        </ScrollView>
+      </View>
+
+      {/* Filter Bar */}
+      <View style={styles.filterBar}>
+        <TouchableOpacity
+          style={[styles.filterButton, filterLikedPosts && styles.filterButtonActive]}
+          onPress={() => setFilterLikedPosts(!filterLikedPosts)}
+        >
+          <Ionicons
+            name={filterLikedPosts ? "heart" : "heart-outline"}
+            size={20}
+            color={filterLikedPosts ? "#7743CE" : "#666"}
+          />
+          <Text style={[styles.filterButtonText, filterLikedPosts && styles.filterButtonTextActive]}>
+            Liked Posts
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Feed Screen */}
@@ -247,7 +350,7 @@ export default function CommunityScreen() {
               style={{
                 width: 200,
                 alignSelf: "center",
-                
+
               }}
             >
               <Button
@@ -273,6 +376,108 @@ export default function CommunityScreen() {
           </View>
         </Modal>
       </View>
+
+      <Modal isVisible={templateModalVisible} onBackdropPress={() => setTemplateModalVisible(false)}>
+        <View style={styles.templateModal}>
+          <Text style={styles.templateModalTitle}>Select Template to Share</Text>
+          <ScrollView style={styles.templateList}>
+            {templates.map((template) => (
+              <TouchableOpacity
+                key={template.id}
+                style={styles.templateItem}
+                onPress={() => {
+                  setPostText(postText + `\n\nWorkout Template: ${template.name}\n` +
+                    template.exercises.map(ex =>
+                      `- ${ex.name}: ${ex.sets} sets × ${ex.reps} reps @ ${ex.weight}kg`
+                    ).join('\n')
+                  );
+                  setTemplateModalVisible(false);
+                }}
+                onLongPress={() => {
+                  Alert.alert(
+                    `${template.name} Details`,
+                    template.exercises.map(ex =>
+                      `${ex.name}\n` +
+                      `Sets: ${ex.sets}\n` +
+                      `Reps: ${ex.reps}\n` +
+                      `Weight: ${ex.weight}kg\n`
+                    ).join('\n'),
+                    [{ text: 'OK', style: 'default' }]
+                  );
+                }}
+                delayLongPress={500}
+              >
+                <Text style={styles.templateName}>{template.name}</Text>
+                <Text style={styles.templateExerciseCount}>
+                  {template.exercises.length} exercises
+                </Text>
+                <Text style={styles.templateHint}>Long press to view details</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.modalCloseButton}
+            onPress={() => setTemplateModalVisible(false)}
+          >
+            <Text style={styles.modalCloseButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal isVisible={foodModalVisible} onBackdropPress={() => setFoodModalVisible(false)}>
+        <View style={styles.templateModal}>
+          <Text style={styles.templateModalTitle}>Share Custom Food</Text>
+          <ScrollView style={styles.templateList}>
+            {recentFoods.length > 0 ? (
+              recentFoods.map((food) => (
+                <TouchableOpacity
+                  key={`${food.name}-${food.calories}-${food.servingSize}`}
+                  style={styles.templateItem}
+                  onPress={() => {
+                    firestore()
+                      .collection('users')
+                      .doc(auth().currentUser?.uid)
+                      .collection('current_community_post')
+                      .add({
+                        ...food,
+                        source: 'custom'
+                      });
+                    setFoodModalVisible(false);
+                  }}
+                  onLongPress={() => {
+                    Alert.alert(
+                      `${food.name} Details`,
+                      `Calories: ${food.calories}\n` +
+                      `Serving Size: ${food.servingSize} ${food.servingSizeUnit}\n` +
+                      `Carbs: ${food.macros.carbs}g\n` +
+                      `Protein: ${food.macros.protein}g\n` +
+                      `Fat: ${food.macros.fat}g`,
+                      [{ text: 'OK', style: 'default' }]
+                    );
+                  }}
+                  delayLongPress={500}
+                >
+                  <Text style={styles.templateName}>{food.name}</Text>
+                  <Text style={styles.templateExerciseCount}>
+                    {food.calories} calories
+                  </Text>
+                  <Text style={styles.templateHint}>Long press to view details</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={[styles.templateHint, { textAlign: 'center', marginTop: 20 }]}>
+                No custom foods available. Create custom foods in the Diet tab first.
+              </Text>
+            )}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.modalCloseButton}
+            onPress={() => setFoodModalVisible(false)}
+          >
+            <Text style={styles.modalCloseButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -341,14 +546,159 @@ const styles = StyleSheet.create({
   },
   commentbox: {
     backgroundColor: "#7743CE",
-    width:100,
-    color:'white',
-    fontSize:20,
-    borderRadius:15,
-    marginVertical:5,
-    textAlign:'center',
-    fontStyle:'italic',
-    alignSelf:'center',
+    width: 100,
+    color: 'white',
+    fontSize: 20,
+    borderRadius: 15,
+    marginVertical: 5,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    alignSelf: 'center',
 
+  },
+  userPostContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 20,
+    marginHorizontal: 15,
+    marginTop: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  userHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  userAvatar: {
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  postInput: {
+    flex: 1,
+    minHeight: 60,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 15,
+    padding: 12,
+    fontSize: 16,
+    color: '#333',
+  },
+  postActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    minWidth: 130,
+    justifyContent: 'center',
+  },
+  actionButtonText: {
+    marginLeft: 8,
+    color: '#7743CE',
+    fontWeight: '600',
+  },
+  sendButton: {
+    backgroundColor: '#7743CE',
+    alignSelf: 'stretch',
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    marginLeft: 8,
+    fontWeight: '600',
+  },
+  foodItemsContainer: {
+    maxHeight: 120,
+    marginTop: 15,
+  },
+  filterBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  filterButtonActive: {
+    backgroundColor: '#F0E6FF',
+  },
+  filterButtonText: {
+    marginLeft: 8,
+    color: '#666',
+    fontWeight: '600',
+  },
+  filterButtonTextActive: {
+    color: '#7743CE',
+  },
+  templateModal: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  templateModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#7743CE',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  templateList: {
+    maxHeight: 400,
+  },
+  templateItem: {
+    backgroundColor: '#F5F5F5',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  templateName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7743CE',
+    marginBottom: 4,
+  },
+  templateExerciseCount: {
+    fontSize: 14,
+    color: '#666',
+  },
+  modalCloseButton: {
+    backgroundColor: '#F5F5F5',
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  modalCloseButtonText: {
+    color: '#666',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  shareActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  templateHint: {
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
+    marginTop: 4
   },
 });
