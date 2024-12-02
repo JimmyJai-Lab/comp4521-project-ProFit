@@ -3,70 +3,77 @@ import React from "react";
 import { StyleSheet, View, Text,TouchableOpacity } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
+import FoodItem from "@/services/food/FoodItem";
 
-const AddShownFood = () => {
+export default function AddShownFood({ foodItems }: { foodItems: Array<FoodItem> }) {
   return ( 
     <View>
-      <View style={styles.mealcontainer}>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        marginLeft: 15,
-                        fontWeight: "bold",
-                        fontSize: 15,
-                        color: "#640D5F",
-                        width:130
-                      }}
-                    >
-                      Food NameFood
-                    </Text>
-                    
-                    <Text
-                      style={{
-                        marginLeft: 15,
-                        fontWeight: 300,
-                        color: "black",
-                      }}
-                    >
-                      Serving: 
-                    </Text>
-                  </View>
-                  <View style={styles.rightcontainer}>
-                    
-                    <View style={{marginLeft:5}}>
-                    <FontAwesome5 name="fire-alt" size={24} color="#D91656" />
-                    </View>
-                    <View
-                      style={{
-                        width: 70,
-                        height: 25,
-                        justifyContent: "center",
-                        paddingLeft: 3,
-                        backgroundColor:'transparent',
-                        marginLeft:5
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "bold",
-                          textAlignVertical: "center",
-                          textAlign: "center",
-                          fontSize: 17,
-                        }}
-                      >
-                         9999 cal
-                      </Text>
-                    </View>
-                    <TouchableOpacity>
-                       <View style={styles.confirmbutton}>
-                        <Entypo name="cross" size={24} color="black" />
-                        </View> 
-                    </TouchableOpacity>
-                    
-                  </View>
-                 
+      {foodItems.map((foodItem, index) => {
+        return (
+          <View style={styles.mealcontainer} key={index}>
+            <View style={{}}>
+              <Text
+                style={{
+                  marginLeft: 15,
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  color: "#640D5F",
+                  width: 130,
+                }}
+              >
+                {foodItem.name}
+              </Text>
+
+              <Text
+                style={{
+                  marginLeft: 15,
+                  fontWeight: 300,
+                  color: "black",
+                }}
+              >
+                Serving: {foodItem.servingSize} {foodItem.servingSizeUnit}
+              </Text>
+            </View>
+            <View>
+              <Text>{foodItem.macros.carbs}</Text>
+              <Text>{foodItem.macros.protein}</Text>
+              <Text>{foodItem.macros.fat}</Text>
+            </View>
+            <View style={styles.rightcontainer}>
+              <View style={{ marginLeft: 5 }}>
+                <FontAwesome5 name="fire-alt" size={24} color="#D91656" />
+              </View>
+              <View
+                style={{
+                  width: 70,
+                  height: 25,
+                  justifyContent: "center",
+                  paddingLeft: 3,
+                  backgroundColor: "transparent",
+                  marginLeft: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlignVertical: "center",
+                    textAlign: "center",
+                    fontSize: 17,
+                  }}
+                >
+                  {foodItem.calories} cal
+                </Text>
+              </View>
+              <TouchableOpacity>
+                <View style={styles.confirmbutton}>
+                  <Entypo name="cross" size={24} color="black" />
                 </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -105,5 +112,3 @@ const styles = StyleSheet.create({
     marginLeft:10
   },
 });
-
-export default AddShownFood;

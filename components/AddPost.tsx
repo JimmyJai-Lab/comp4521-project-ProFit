@@ -7,13 +7,34 @@ import Feather from '@expo/vector-icons/Feather';
 import Post from '@/services/community/Post';
 import { router } from 'expo-router';
 import AddPostFood from './AddPostFood';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import AddShownFood from './AddShownFood';
 
 const AddPost = ({ post }: { post: Post }) => {
     const [like, setLike] = useState(false);
     const [likes, setLikes] = useState(post.likes);
 
+    const likePost = async () => {
+        // const postRef = firestore().collection('posts').doc(post.id);
 
+        // if (!like) {
+        //     setLikes(likes - 1);
+        //     await postRef.update({
+        //         likes: firestore.FieldValue.increment(-1),
+        //     });
+        // } else {
+        //     setLikes(likes + 1);
+        //     await postRef.update({
+        //         likes: firestore.FieldValue.increment(1),
+        //     });
+        // }
+    };
+
+    useEffect(() => {
+        likePost();
+    }, [like]);
     
     return(
         <View style={styles.container}>
@@ -33,9 +54,9 @@ const AddPost = ({ post }: { post: Post }) => {
             {/* Cutome Food item showing part */}
             <View>
             <View style={{backgroundColor:'transparent',alignSelf:'flex-start'}}>
-                <AddPostFood/>
-                <AddPostFood/>
-                <AddPostFood/>
+              {post.foodItems ? post.foodItems.map((foodItem) => (
+                <AddPostFood foodItems={post.foodItems} />
+              )) : null}
             </View>
             </View>            
             

@@ -3,56 +3,57 @@ import React from "react";
 import { StyleSheet, View, Text,TouchableOpacity } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
+import FoodItem from "@/services/food/FoodItem";
 
-const AddPostFood = () => {
+const AddPostFood = ({ foodItems } : { foodItems: Array<FoodItem>}) => {
   return ( 
     <View>
-      <View style={styles.mealcontainer}>
-                  <View style={{}}>
-                    <Text
-                      style={{
-                        marginLeft: 15,
-                        fontWeight: "bold",
-                        fontSize: 15,
-                        color: "#640D5F",
-                        width:130
-                      }}
-                    >
-                      Food NameFood
-                    </Text>
-                    
-                  </View>
-                  <View style={styles.rightcontainer}>
-                    
-                    <View style={{marginLeft:5}}>
-                    <FontAwesome5 name="fire-alt" size={15} color="#D91656" />
-                    </View>
-                    <View
-                      style={{
-                        width: 70,
-                        height: 25,
-                        justifyContent: "center",
-                        paddingLeft: 3,
-                        backgroundColor:'transparent',
-                        marginLeft:5
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "bold",
-                          textAlignVertical: "center",
-                          textAlign: "center",
-                          fontSize: 15,
-                        }}
-                      >
-                         9999 cal
-                      </Text>
-                    </View>
-                    
-                  </View>
-                 
-                </View>
+      {foodItems.map((foodItem, index) => {
+        return (
+          <View style={styles.mealcontainer}>
+            <View style={{}}>
+              <Text
+                style={{
+                  marginLeft: 15,
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  color: "#640D5F",
+                  width: 130,
+                }}
+              >
+                {foodItem.name}
+              </Text>
+            </View>
+            <View style={styles.rightcontainer}>
+              <View style={{ marginLeft: 5 }}>
+                <FontAwesome5 name="fire-alt" size={15} color="#D91656" />
+              </View>
+              <View
+                style={{
+                  width: 70,
+                  height: 25,
+                  justifyContent: "center",
+                  paddingLeft: 3,
+                  backgroundColor: "transparent",
+                  marginLeft: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlignVertical: "center",
+                    textAlign: "center",
+                    fontSize: 15,
+                  }}
+                >
+                  {foodItem.calories} cal
+                </Text>
+              </View>
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 };

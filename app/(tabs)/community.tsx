@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet,Button,TouchableOpacity,Image,TextInput,ScrollView } from 'react-native';
+import { Text, View, StyleSheet,Button,TouchableOpacity,Image,TextInput,ScrollView, RefreshControl } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -11,20 +11,24 @@ import auth from "@react-native-firebase/auth";
 import Post from '@/services/community/Post';
 import { router } from 'expo-router';
 import AddShownFood from '@/components/AddShownFood';
+import FoodItem from '@/services/food/FoodItem';
 
 export default function CommunityScreen() {
   const [postText, setPostText] = useState('');
   const [posts, setPosts] = useState<Array<Post>>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [foodItems, setFoodItems] = useState<Array<FoodItem>>();
 
   const updatePostText = (text: string) => {
     setPostText(text);
   };
 
-  const sendPost = () => {
-    firestore()
+  const sendPost = async () => {
+    await firestore()
       .collection('community_posts')
       .add({
         content: postText,
+        foodItems: foodItems,
         date: new Date(),
         uid: auth().currentUser?.uid,
         username: auth().currentUser?.displayName,
@@ -37,20 +41,18 @@ export default function CommunityScreen() {
         console.error('Failed to add post:', error);
       });
 
-    // firestore()
-    //   .collection('users')
-    //   .doc(auth().currentUser?.uid)
-    //   .collection('my_posts')
-    //   .add({
-    //     text: postText,
-    //     date: new Date(),
-    //   })
-    //   .then(() => {
-    //     setPostText('');
-    //   })
-    //   .catch((error) => {
-    //     console.error('Failed to add post:', error);
-    //   });
+    await firestore()
+      .collection('users')
+      .doc(auth().currentUser?.uid)
+      .collection('current_community_post')
+      .get()
+      .then((snapshot) => {
+        snapshot.docs.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+      
+    setFoodItems([]);
   };
 
   const updatePosts = async () => {
@@ -58,6 +60,7 @@ export default function CommunityScreen() {
     try {
       const snapshot = await firestore()
         .collection('community_posts')
+        .orderBy('date', 'desc')
         .get();
 
       data = snapshot.docs.map(doc => doc.data());
@@ -74,10 +77,29 @@ export default function CommunityScreen() {
     }
   }
 
+  const updatePostFood = () => {
+    firestore()
+      .collection('users')
+      .doc(auth().currentUser?.uid)
+      .collection('current_community_post')
+      .get()
+      .then((snapshot) => {
+        const data = snapshot.docs.map(doc => doc.data());
+        if (data.length > 0) {
+          setFoodItems(data as Array<FoodItem>);
+        }
+      });
+  };
+  
+  const onRefresh = () => {
+    setRefreshing(true);
+    setPosts([]);
+    updatePosts().then(() => setRefreshing(false));
+  }
+
   useEffect(() => {
     const unsubscribe = firestore()
       .collection('community_posts')
-      .orderBy('date', 'desc')
       .onSnapshot(() => {
         updatePosts();
       });
@@ -85,53 +107,72 @@ export default function CommunityScreen() {
     return () => unsubscribe();
   });
 
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('users')
+      .doc(auth().currentUser?.uid)
+      .collection('current_community_post')
+      .onSnapshot(() => {
+        updatePostFood();
+      });
+
+    return () => unsubscribe();
+  });
   
   return (
     <View>
-      
-
-
       {/* User Post */}
       <View style={styles.user}>
-      <Image source={require('../../assets/images/bur.jpg')} style={{height:60,width:60,borderRadius:30,margin:5}}/>
-      <TouchableOpacity style={styles.textbox} disabled>
-        <TextInput placeholder="Let's share something here!" maxLength={500} style={{fontWeight:200}} value={postText} onChangeText={updatePostText} multiline={true} editable={true} ></TextInput>
-      </TouchableOpacity>
-      <TouchableOpacity style={{marginLeft:15,backgroundColor:'transparent'}} onPress={sendPost}>
-        <Feather name="send" size={35} color="black" />
-      </TouchableOpacity>
+        <Image
+          source={require("../../assets/images/bur.jpg")}
+          style={{ height: 60, width: 60, borderRadius: 30, margin: 5 }}
+        />
+        <TouchableOpacity style={styles.textbox} disabled>
+          <TextInput
+            placeholder="Let's share something here!"
+            maxLength={500}
+            style={{ fontWeight: 200 }}
+            value={postText}
+            onChangeText={updatePostText}
+            multiline={true}
+            editable={true}
+          ></TextInput>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ marginLeft: 15, backgroundColor: "transparent" }}
+          onPress={sendPost}
+        >
+          <Feather name="send" size={35} color="black" />
+        </TouchableOpacity>
       </View>
       {/* Added Food item shown place */}
-      <ScrollView style={{maxHeight:120,marginVertical:5,minHeight:20}}>
-        <AddShownFood/> 
-           
+      <ScrollView style={{ maxHeight: 120, marginVertical: 5, minHeight: 20 }}>
+        {foodItems ? <AddShownFood foodItems={foodItems} /> : null}
       </ScrollView>
 
-
-      <View style={{backgroundColor:'red',margin:10,minHeight:0,borderRadius:10,marginBottom:0}}>
-        
-        
-      </View>
-      
-      
-      
       {/* middle bar */}
       <View style={styles.middlebar}>
         <TouchableOpacity style={styles.middlebutton}>
-          <Text style={{textAlign:'center',fontSize:20,fontWeight:200}}
-          onPress={() => router.navigate("/comment_addfood")}
+          <Text
+            style={{ textAlign: "center", fontSize: 20, fontWeight: 200 }}
+            onPress={() => router.navigate({ pathname: "/comment_addfood" })}
           >
-            Add Food Item</Text>
+            Add Food Item
+          </Text>
         </TouchableOpacity>
       </View>
+
       {/* Feed Screen */}
-      
-      <ScrollView style={{marginBottom:300,height:500}}>
+      <ScrollView
+        style={{ marginBottom: 300, height: 500 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {posts.map((post, index) => {
           return <AddPost key={`post-${index}`} post={post} />;
         })}
       </ScrollView>
-      
     </View>
   );
 }
