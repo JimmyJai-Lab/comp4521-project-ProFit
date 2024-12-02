@@ -203,20 +203,19 @@ export default function CommunityScreen() {
             Add Food Item
           </Text>
         </TouchableOpacity>
-      </View>
-
-      <View>
-        <TouchableOpacity style={styles.middlebutton}>
-          <Text
-            style={{ textAlign: "center", fontSize: 20, fontWeight: 200 }}
-            onPress={() => {
-              setFilterLikedPosts(!filterLikedPosts)
-              console.log(filterLikedPosts)
-            }}
-          >
-            liked posts
-          </Text>
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity style={styles.middlebutton}>
+            <Text
+              style={{ textAlign: "center", fontSize: 20, fontWeight: 200 }}
+              onPress={() => {
+                setFilterLikedPosts(!filterLikedPosts);
+                console.log(filterLikedPosts);
+              }}
+            >
+              Liked Posts
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Feed Screen */}
@@ -243,13 +242,25 @@ export default function CommunityScreen() {
 
       <View>
         <Modal isVisible={isCommentVisible}>
-          <View style={{ flex: 1 }}>
-            <Button title="return" onPress={updateCommentVisible}></Button>
+          <View style={{}}>
+            <View
+              style={{
+                width: 200,
+                alignSelf: "center",
+                
+              }}
+            >
+              <Button
+                title="return"
+                onPress={updateCommentVisible}
+                color={"#7743CE"}
+              ></Button>
+            </View>
             {posts
               .find((post) => post.id === currentPostComment)
               ?.comments?.map((comment, index) => {
                 return (
-                  <Text key={index} style={{ color: "white" }}>
+                  <Text key={index} style={styles.commentbox}>
                     {comment}
                   </Text>
                 );
@@ -319,7 +330,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   input: {
-    flex: 1,
     height: 40,
     borderWidth: 1,
     borderColor: "#ccc",
@@ -328,5 +338,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     marginRight: 10,
     fontSize: 14,
+  },
+  commentbox: {
+    backgroundColor: "#7743CE",
+    width:100,
+    color:'white',
+    fontSize:20,
+    borderRadius:15,
+    marginVertical:5,
+    textAlign:'center',
+    fontStyle:'italic',
+    alignSelf:'center',
+
   },
 });
