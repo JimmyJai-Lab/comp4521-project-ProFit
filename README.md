@@ -8,3 +8,26 @@ Exercise database (excel spreadsheet): https://strengthtoovercome.com/functional
 
 Reference:
 https://github.com/Kennygunderman/state-of-health-tracker
+
+### Exercise Database API
+
+The app uses the Wger Workout Manager API to fetch exercise data. 
+
+#### API Details
+- Base URL: https://wger.de/api/v2/
+- Documentation: https://wger.de/api/v2/docs/
+- Authentication: Not required for basic exercise data
+- Rate Limits: No strict limits for basic usage
+
+#### Features Used
+- Exercise database with descriptions
+- Exercise categories
+- Equipment information
+- Muscle groups targeted
+- Exercise search functionality
+
+#### Example Endpoints
+- `/exercise/`: Get list of exercises
+- `/exerciseinfo/`: Get detailed exercise information
+- `/equipment/`: Get available equipment
+- `/muscle/`: Get muscle information
