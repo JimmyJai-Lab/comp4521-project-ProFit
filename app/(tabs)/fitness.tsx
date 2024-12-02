@@ -8,6 +8,8 @@ import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { Easing } from 'react-native';
+import Animated, { withSpring } from 'react-native-reanimated';
 
 // Updated interface to match Firebase data structure
 interface Exercise {
@@ -37,13 +39,13 @@ export default function FitnessScreen() {
     const totalSets = exerciseData.reduce((acc, curr) => acc + curr.sets, 0);
     // Calculate completed sets
     const completedSets = exerciseData.reduce((acc, curr) => acc + (curr.completedSets || 0), 0);
-    // Calculate volume based on completed sets
+    // Calculate volume based on completed sets, ensuring all values are numbers
     const totalVolume = exerciseData.reduce((acc, curr) =>
-      acc + (curr.completedSets * curr.reps * curr.weight), 0);
+      acc + ((curr.completedSets || 0) * (curr.reps || 0) * (curr.weight || 0)), 0);
 
-    setTargetSets(totalSets); // Update target sets to match total sets
-    setCurrentSets(completedSets); // Update current sets to show completed sets
-    setVolume(totalVolume);
+    setTargetSets(totalSets);
+    setCurrentSets(completedSets);
+    setVolume(Math.round(totalVolume)); // Round to whole numbers for cleaner display
   };
 
   // Function to handle set completion
@@ -95,8 +97,7 @@ export default function FitnessScreen() {
 
       const exerciseData = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data(),
-        completedSets: 0
+        ...doc.data()
       })) as Exercise[];
 
       setExercises(exerciseData);
@@ -163,13 +164,24 @@ export default function FitnessScreen() {
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(currentSets / targetSets) * 100}
+            fill={(currentSets / targetSets) * 100 || 0}
             tintColor="#7743CE"
             backgroundColor="#E7DDFF"
+            duration={1000}
+            easing={Easing.out(Easing.ease)}
+            rotation={0}
+            lineCap="round"
           >
-            {() => (
+            {(fill) => (
               <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>{currentSets}</Text>
+                <Animated.Text
+                  style={{
+                    fontSize: 30,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {currentSets}
+                </Animated.Text>
                 <Text style={{ fontSize: 16 }}>of {targetSets} sets</Text>
               </View>
             )}
