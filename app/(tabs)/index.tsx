@@ -147,21 +147,6 @@ export default function Index() {
           disabled={loading}
         />
       </View>
-      <View style={{ flexDirection: "row", alignItems: "center", flex: 0.25 }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: "grey" }} />
-        <View>
-          <Text style={{ width: 50, textAlign: "center" }}>Or</Text>
-        </View>
-        <View style={{ flex: 1, height: 1, backgroundColor: "grey" }} />
-      </View>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", flex: 0.2 }}>
-        <View style={{ marginHorizontal: 5 }}>
-          <Button theme="google" label="Login with Google" />
-        </View>
-        <View style={{ marginHorizontal: 5 }}>
-          <Button theme="facebook" label="Login with Facebook" />
-        </View>
-      </View>
     </View>
   );
 }
