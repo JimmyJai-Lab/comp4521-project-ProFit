@@ -1,218 +1,203 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Image } from 'expo-image';
 import * as React from 'react';
 import CalendarStrip from 'react-native-calendar-strip';
 import { FlashList } from "@shopify/flash-list";
 import Checkbox from 'expo-checkbox';
 import { router } from 'expo-router';
-import email from './fitness';
-import { ListItemSubtitle } from '@rneui/base/dist/ListItem/ListItem.Subtitle';
-interface Exercises {
-  id: number;
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
+// Updated interface to match Firebase data structure
+interface Exercise {
+  id: string;
+  exerciseId: number;
   name: string;
   weight: number;
-  set: number;
-  rep: number;
-  image: URL;
-  checked: boolean;
+  sets: number;
+  reps: number;
+  date: string;
+  completedSets: number;
 }
 
-
 export default function FitnessScreen() {
-  const [minutes] = React.useState<number>(0);
-  const [average_minutes] = React.useState<number>(0);
-  const [num_of_sets] = React.useState<number>(0);
-  const [volume] = React.useState<number>(0);
-  const DATA = [
-    {
-      id: 0,
-      name: "chest press",
-      weight: 40,
-      set: 4,
-      rep: 10,
-      image: require("../../assets/images/chest press.webp"),
-      checked: false,
-    },
-    {
-      id: 1,
-      name: "shoulder press",
-      weight: 20,
-      set: 4,
-      rep: 8,
-      image: require("../../assets/images/shoulder press.jpg"),
-      checked: false,
-    },
-    {
-      id: 2,
-      name: "lateral raise",
-      weight: 10,
-      set: 4,
-      rep: 8,
-      image: require("../../assets/images/lateral raise.webp"),
-      checked: false,
-    },
-    {
-      id: 3,
-      name: "chest butterfly",
-      weight: 30,
-      set: 4,
-      rep: 10,
-      image: require("../../assets/images/chest butterfly.webp"),
-      checked: false,
-    },
-  ];
-  const [isChecked, setChecked] = React.useState(DATA);
+  // State for statistics
+  const [targetSets, setTargetSets] = React.useState<number>(20);
+  const [currentSets, setCurrentSets] = React.useState<number>(0);
+  const [volume, setVolume] = React.useState<number>(0);
 
-  const handleChange = (id: any) => {
-    //alert(Object.values(isChecked[id]));
-    let temp = isChecked.map((product) => {
-      if (id === product.id) {
-        return { ...product, checked: !product.checked };
-      }
-      return product;
-    });
-    setChecked(temp);
+  // State for exercises
+  const [exercises, setExercises] = React.useState<Exercise[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+
+  // Function to calculate total sets and volume
+  const calculateStats = (exerciseData: Exercise[]) => {
+    // Calculate total sets (sum of all sets from exercises)
+    const totalSets = exerciseData.reduce((acc, curr) => acc + curr.sets, 0);
+    // Calculate completed sets
+    const completedSets = exerciseData.reduce((acc, curr) => acc + (curr.completedSets || 0), 0);
+    // Calculate volume based on completed sets
+    const totalVolume = exerciseData.reduce((acc, curr) =>
+      acc + (curr.completedSets * curr.reps * curr.weight), 0);
+
+    setTargetSets(totalSets); // Update target sets to match total sets
+    setCurrentSets(completedSets); // Update current sets to show completed sets
+    setVolume(totalVolume);
   };
-  // const Item = ({data}: {data: Exercises}) => (
-  //   <View
-  //   style={{
-  //     backgroundColor: '#eeeeee',
-  //     borderRadius: 10,
-  //     padding: 20,
-  //     marginVertical: 8,
-  //     marginHorizontal: 16,
-  //   }}>
-  //     <Text style={{fontSize: 24}}>{data.name}</Text>
-  //   </View>
-  // )
-  const renderItem = ({ item }: { item: Exercises }) => {
-    return (
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee'
-      }}>
-        <Image
-          source={item.image}
-          style={{
-            height: 60,
-            width: 60,
-            borderRadius: 5
-          }}
-        />
-        <View style={{ flex: 1, paddingHorizontal: 10 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
-            <Text style={{ color: "#808080" }}>Weight: {String(item.weight)} kg</Text>
-          </View>
-          <Text style={{ color: "#808080", marginTop: 5 }}>
-            Volume: {String(item.set)} sets x {String(item.rep)} reps
-          </Text>
+
+  // Function to handle set completion
+  const handleSetCompletion = async (exerciseId: string, currentCompletedSets: number, totalSets: number) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      const newCompletedSets = currentCompletedSets < totalSets ? currentCompletedSets + 1 : 0;
+
+      // Update Firebase
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercises')
+        .doc(exerciseId)
+        .update({
+          completedSets: newCompletedSets
+        });
+
+      // Update local state
+      const updatedExercises = exercises.map(exercise =>
+        exercise.id === exerciseId
+          ? { ...exercise, completedSets: newCompletedSets }
+          : exercise
+      );
+
+      setExercises(updatedExercises);
+      calculateStats(updatedExercises);
+    } catch (error) {
+      console.error('Error updating exercise completion:', error);
+    }
+  };
+
+  // Function to fetch exercises for selected date
+  const fetchExercises = async (date: Date) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      const dateString = date.toISOString().split('T')[0];
+
+      const snapshot = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercises')
+        .where('date', '==', dateString)
+        .get();
+
+      const exerciseData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        completedSets: 0
+      })) as Exercise[];
+
+      setExercises(exerciseData);
+      calculateStats(exerciseData);
+    } catch (error) {
+      console.error('Error fetching exercises:', error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchExercises(selectedDate);
+  }, [selectedDate]);
+
+  const renderExerciseItem = ({ item }: { item: Exercise }) => (
+    <View style={styles.mealcontainer}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ marginLeft: 15, fontWeight: 'bold', fontSize: 15, color: '#1c438b' }}>
+          {item.name}
+        </Text>
+        <Text style={{ marginLeft: 15, fontWeight: '300', color: 'black' }}>
+          Completed: {item.completedSets} / {item.sets} sets × {item.reps} reps
+        </Text>
+        <Text style={{ marginLeft: 15, fontWeight: '300', color: 'black' }}>
+          Weight: {item.weight} kg
+        </Text>
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${(item.completedSets / item.sets) * 100}%` }
+            ]}
+          />
         </View>
-        <Checkbox
-          style={{ margin: 10 }}
-          value={isChecked[item.id].checked}
-          onValueChange={() => { handleChange(item.id); }}
-        />
       </View>
-    );
-  };
+      <TouchableOpacity
+        style={[
+          styles.checkButton,
+          { backgroundColor: item.completedSets === item.sets ? '#4CAF50' : '#75E6DA' }
+        ]}
+        onPress={() => handleSetCompletion(item.id, item.completedSets || 0, item.sets)}
+      >
+        <Text style={styles.checkButtonText}>
+          {item.completedSets === item.sets ? 'Reset' : 'Complete Set'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <CalendarStrip
-        calendarAnimation={{ type: 'sequence', duration: 30 }}
-        daySelectionAnimation={{ type: 'border', duration: 200, borderWidth: 1, borderHighlightColor: 'white' }}
-        style={{ height: 80, paddingTop: 20, paddingBottom: 10 }}
-        calendarHeaderStyle={{ color: 'white', fontSize: 10 }}
+        style={{ height: 80, paddingTop: 5, paddingBottom: 5 }}
+        calendarHeaderStyle={{ color: 'white', fontSize: 15 }}
         calendarColor={'#7743CE'}
-        dateNumberStyle={{ color: 'white', fontSize: 10 }}
-        dateNameStyle={{ color: 'white', fontSize: 10 }}
-        highlightDateNumberStyle={{ color: 'yellow', fontSize: 10 }}
-        highlightDateNameStyle={{ color: 'yellow', fontSize: 10 }}
-        disabledDateNameStyle={{ color: 'grey', fontSize: 10 }}
-        disabledDateNumberStyle={{ color: 'grey', fontSize: 10 }}
-        iconContainer={{ flex: 0.1, fontSize: 10 }}
+        dateNumberStyle={{ color: 'white', fontSize: 15 }}
+        dateNameStyle={{ color: 'white', fontSize: 15 }}
+        highlightDateNumberStyle={{ color: 'yellow', fontSize: 15 }}
+        highlightDateNameStyle={{ color: 'yellow', fontSize: 15 }}
+        onDateSelected={(date) => setSelectedDate(date.toDate())}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.summarycontainer}>
-          <View style={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Summary</Text>
-          </View>
-          <View style={{ paddingLeft: 40 }}>
-            <Text style={styles.heading}>Duration</Text>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View>
-              <Text style={{ paddingHorizontal: 40, fontSize: 25, color: 'white', fontWeight: 'bold' }}>{minutes}</Text>
-            </View>
-            <View>
-              <Text style={styles.text}>mins</Text>
-            </View>
-            <View>
-              <Text style={{ paddingHorizontal: 30, fontSize: 25, color: 'white', fontWeight: 'bold' }}>{average_minutes}</Text>
-            </View>
-            <View>
-              <Text style={styles.text}>mins daily average</Text>
-            </View>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View>
-              <View >
-                <Text style={[styles.heading, { paddingLeft: 40 }]}>Set</Text>
+      <ScrollView>
+        <View style={styles.progressContainer}>
+          <AnimatedCircularProgress
+            size={200}
+            width={15}
+            fill={(currentSets / targetSets) * 100}
+            tintColor="#7743CE"
+            backgroundColor="#E7DDFF"
+          >
+            {() => (
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ fontSize: 30, fontWeight: 'bold' }}>{currentSets}</Text>
+                <Text style={{ fontSize: 16 }}>of {targetSets} sets</Text>
               </View>
-              <View style={{ flexDirection: 'row' }}>
-                <View>
-                  <Text style={{ paddingHorizontal: 40, fontSize: 25, color: 'white', fontWeight: 'bold' }}>{num_of_sets}</Text>
-                </View>
-                <View>
-                  <Text style={styles.text}>sets</Text>
-                </View>
-              </View>
-            </View>
-            <View>
-              <View >
-                <Text style={[styles.heading, { paddingLeft: 40 }]}>Volume</Text>
-              </View>
-              <View style={{ flexDirection: 'row' }}>
-                <View>
-                  <Text style={{ paddingHorizontal: 40, fontSize: 25, color: 'white', fontWeight: 'bold' }}>{volume}</Text>
-                </View>
-                <View>
-                  <Text style={styles.text}>kgs</Text>
-                </View>
-              </View>
+            )}
+          </AnimatedCircularProgress>
+
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Volume</Text>
+              <Text style={styles.statValue}>{volume} kg</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.addingcontainer}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
-            <Text style={styles.heading}>Today's Exercises</Text>
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#75E6DA',
-                borderRadius: 20,
-                padding: 10,
-                minWidth: 100,
-                alignItems: 'center'
-              }}
-              onPress={() => router.navigate('/addexercise_api')}>
-              <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'black' }}>Add Set</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.exercisesHeader}>
+          <Text style={styles.heading}>Today's Exercises</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.navigate('/addexercise_api')}>
+            <Text style={styles.addButtonText}>Add Exercise</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.exercisecontainer}>
-          <FlashList
-            data={DATA}
-            renderItem={renderItem}
-            estimatedItemSize={100}
-            scrollEnabled={false}
-          />
+        <View style={styles.exerciseList}>
+          {exercises.map((exercise, index) => (
+            <View key={index}>
+              {renderExerciseItem({ item: exercise })}
+            </View>
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -224,32 +209,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  summarycontainer: {
-    backgroundColor: '#FFC0CB',
-    borderRadius: 10,
-    margin: 10,
-    padding: 10,
+  progressContainer: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFFFFF',
   },
-  addingcontainer: {
-    backgroundColor: '#ADD8E6',
-    borderRadius: 10,
-    margin: 10,
-    padding: 10,
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 20,
   },
-  exercisecontainer: {
-    backgroundColor: '#E7DDFF',
-    borderRadius: 10,
-    margin: 10,
-    minHeight: 200,
-    marginBottom: 20,
+  statItem: {
+    alignItems: 'center',
   },
-  text: {
-    color: '#000000',
-    fontSize: 20,
+  statLabel: {
+    fontSize: 16,
+    color: '#666',
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#7743CE',
+  },
+  exercisesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#F5F5F5',
   },
   heading: {
-    color: '#000000',
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: 'bold',
+  },
+  addButton: {
+    backgroundColor: '#75E6DA',
+    borderRadius: 20,
+    padding: 10,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+  },
+  exerciseList: {
+    padding: 10,
+  },
+  mealcontainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    marginVertical: 5,
+    padding: 10,
+  },
+  rightcontainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1c438b',
+    borderRadius: 20,
+    padding: 10,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 5,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#7743CE',
+    borderRadius: 2,
+  },
+  checkButton: {
+    borderRadius: 20,
+    padding: 10,
+    marginLeft: 10,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  checkButtonText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: 'black',
   },
 });
