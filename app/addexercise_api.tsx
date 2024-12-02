@@ -37,33 +37,32 @@ export default function ExerciseAPI() {
 
   return (
     <View style={styles.container}>
-      <SearchBar
-        placeholder="Search for Exercises Here ..."
-        onChangeText={updateSearch}
-        value={search}
-        lightTheme={true}
-        inputContainerStyle={{ height: 10, backgroundColor: '#d1d0d0' }}
-        containerStyle={{ minHeight: 0, height: 47 }}
-        inputStyle={{
-          minHeight: 0,
-          fontSize: 10
-        }}
-      />
+      <View style={styles.searchContainer}>
+        <SearchBar
+          placeholder="Search exercises..."
+          onChangeText={updateSearch}
+          value={search}
+          lightTheme={true}
+          containerStyle={styles.searchBarContainer}
+          inputContainerStyle={styles.searchBarInput}
+          inputStyle={styles.searchBarText}
+        />
+      </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#75E6DA" style={{ marginTop: 20 }} />
+        <ActivityIndicator size="large" color="#7743CE" style={styles.loader} />
       ) : (
-        <ScrollView>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
           {exercises.map((exercise) => (
             <AddExercise
               key={exercise.id}
               item={{
                 id: exercise.id,
                 name: exercise.name,
+                description: exercise.description,
                 weight: 0,
                 set: 4,
                 rep: 10,
-                description: exercise.description,
                 checked: false
               }}
             />
@@ -78,5 +77,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  }
+  },
+  searchContainer: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
+    backgroundColor: '#7743CE',
+  },
+  searchBarContainer: {
+    backgroundColor: 'transparent',
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+    padding: 0,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  searchBarInput: {
+    backgroundColor: 'white',
+    height: 40,
+    borderRadius: 25,
+  },
+  searchBarText: {
+    fontSize: 16,
+  },
+  loader: {
+    marginTop: 20,
+  },
+  scrollContent: {
+    paddingVertical: 10,
+  },
 });
