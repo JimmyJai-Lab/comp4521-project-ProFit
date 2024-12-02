@@ -8,37 +8,84 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from "react-native";
 import AddCustomFood from "@/components/AddCustomFood";
+import FoodItem from "@/services/food/FoodItem";
+import { SearchBar } from "@rneui/themed";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 
-const CommentsPage = () => {
-  // Sample data for comments
-  
+export default function CommentsPage() {
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [customFoodItems, setCustomFoodItems] = useState<Array<FoodItem>>([]);
+
+  const searchCustomFood = async (searchQuery: string) => {
+    setIsLoading(true);
+
+    var usersCustomFoodItems;
+    try {
+      usersCustomFoodItems = await firestore()
+        .collection("users")
+        .doc(auth().currentUser?.uid)
+        .collection("custom_foods")
+        .where("name", "==", searchQuery)
+        .limit(8)
+        .get();
+    } catch (error) {
+      console.error("Error fetching custom food items from users: ", error);
+    }
+
+    const usersCustomFoodItemsData = usersCustomFoodItems
+      ? usersCustomFoodItems.docs.map((doc) => doc.data() as FoodItem)
+      : [];
+
+    setCustomFoodItems(usersCustomFoodItemsData);
+
+    setIsLoading(false);
+  };
+
 
   return (
     <View>
-    <ScrollView style={{backgroundColor:'#e7e7e4',margin:10,borderRadius:10,minHeight:50}}>
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-      <AddCustomFood />
-        
-        
-        
-
-    </ScrollView>
-    
-  </View>
+      <SearchBar
+        placeholder="Search for Custom Food Items Here ..."
+        onChangeText={(text) => setSearch(text)}
+        value={search}
+        lightTheme={true}
+        inputContainerStyle={{ height: 10, backgroundColor: "#d1d0d0" }}
+        containerStyle={{ minHeight: 0, height: 47 }}
+        inputStyle={{
+          minHeight: 0,
+          fontSize: 10,
+        }}
+        onSubmitEditing={() => searchCustomFood(search)}
+      />
+      {isLoading ? (
+        <View style={{ marginTop: 20 }}>
+          <ActivityIndicator size='large' />
+        </View>
+      ) : (
+        <ScrollView
+          style={{
+            backgroundColor: "#e7e7e4",
+            margin: 10,
+            borderRadius: 10,
+            minHeight: 50,
+          }}
+        >
+          {customFoodItems.map((foodItem, index) => (
+            <AddCustomFood
+              key={index}
+              foodItem={foodItem}
+            />
+          ))}
+        </ScrollView>
+      )}
+    </View>
   );
 };
 
@@ -114,5 +161,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-export default CommentsPage;
