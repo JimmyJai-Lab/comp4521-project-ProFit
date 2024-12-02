@@ -58,7 +58,7 @@ const AddPost = ({ post, updateCommentVisible, updateCurrentPostComment }: { pos
     <View style={styles.container}>
       <View style={{}}>
         <Image
-          source={require("../assets/images/bur.jpg")}
+          source={require("../assets/images/pngwing.com.png")}
           style={{
             height: 60,
             width: 60,
