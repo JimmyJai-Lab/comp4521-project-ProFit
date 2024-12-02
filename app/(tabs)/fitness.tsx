@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Modal, TextInput, Alert } from 'react-native';
 import * as React from 'react';
 import CalendarStrip from 'react-native-calendar-strip';
 import { FlashList } from "@shopify/flash-list";
@@ -24,6 +24,14 @@ interface Exercise {
   completedSets: number;
 }
 
+// Add these new interfaces after the Exercise interface
+interface Template {
+  id: string;
+  name: string;
+  exercises: Exercise[];
+  timestamp: Date;
+}
+
 export default function FitnessScreen() {
   // State for statistics
   const [targetSets, setTargetSets] = React.useState<number>(20);
@@ -33,6 +41,12 @@ export default function FitnessScreen() {
   // State for exercises
   const [exercises, setExercises] = React.useState<Exercise[]>([]);
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+
+  // Add new state for template modal
+  const [isTemplateModalVisible, setTemplateModalVisible] = React.useState(false);
+  const [isSaveModalVisible, setSaveModalVisible] = React.useState(false);
+  const [templateName, setTemplateName] = React.useState('');
+  const [templates, setTemplates] = React.useState<Template[]>([]);
 
   // Add this new effect
   useFocusEffect(
@@ -141,6 +155,128 @@ export default function FitnessScreen() {
 
     } catch (error) {
       console.error('Error deleting exercise:', error);
+    }
+  };
+
+  // Add new functions for template handling
+  const saveAsTemplate = async () => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      if (!templateName.trim()) {
+        Alert.alert('Error', 'Please enter a template name');
+        return;
+      }
+
+      const templateData = {
+        name: templateName,
+        exercises: exercises.map(({ id, ...rest }) => rest), // Exclude the document id
+        timestamp: new Date()
+      };
+
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercise_templates')
+        .add(templateData);
+
+      setSaveModalVisible(false);
+      setTemplateName('');
+      Alert.alert('Success', 'Template saved successfully');
+    } catch (error) {
+      console.error('Error saving template:', error);
+      Alert.alert('Error', 'Failed to save template');
+    }
+  };
+
+  const loadTemplates = async () => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      const snapshot = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercise_templates')
+        .orderBy('timestamp', 'desc')
+        .get();
+
+      const templateData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Template[];
+
+      setTemplates(templateData);
+      setTemplateModalVisible(true);
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      Alert.alert('Error', 'Failed to load templates');
+    }
+  };
+
+  const applyTemplate = async (template: Template) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      // Delete existing exercises for the day
+      const batch = firestore().batch();
+      const existingExercises = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercises')
+        .where('date', '==', selectedDate.toISOString().split('T')[0])
+        .get();
+
+      existingExercises.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+
+      // Add new exercises from template
+      template.exercises.forEach(exercise => {
+        const newExerciseRef = firestore()
+          .collection('users')
+          .doc(user.uid)
+          .collection('exercises')
+          .doc();
+
+        batch.set(newExerciseRef, {
+          ...exercise,
+          date: selectedDate.toISOString().split('T')[0],
+          timestamp: new Date(),
+          completedSets: 0
+        });
+      });
+
+      await batch.commit();
+      setTemplateModalVisible(false);
+      fetchExercises(selectedDate);
+      Alert.alert('Success', 'Template applied successfully');
+    } catch (error) {
+      console.error('Error applying template:', error);
+      Alert.alert('Error', 'Failed to apply template');
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercise_templates')
+        .doc(templateId)
+        .delete();
+
+      // Update local state
+      const updatedTemplates = templates.filter(template => template.id !== templateId);
+      setTemplates(updatedTemplates);
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      Alert.alert('Error', 'Failed to delete template');
     }
   };
 
@@ -258,6 +394,111 @@ export default function FitnessScreen() {
               <Text style={styles.addButtonText}>Add Exercise</Text>
             </TouchableOpacity>
           </View>
+
+          <View style={styles.templateButtonsContainer}>
+            <TouchableOpacity
+              style={styles.templateButton}
+              onPress={() => setSaveModalVisible(true)}
+            >
+              <View style={styles.buttonContent}>
+                <FontAwesome5 name="save" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.templateButtonText}>Save Template</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.templateButton}
+              onPress={loadTemplates}
+            >
+              <View style={styles.buttonContent}>
+                <FontAwesome5 name="clipboard-list" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.templateButtonText}>Select Template</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Save Template Modal */}
+          <Modal
+            visible={isSaveModalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setSaveModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Save as Template</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Enter template name"
+                  value={templateName}
+                  onChangeText={setTemplateName}
+                  placeholderTextColor="#666"
+                />
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => {
+                      setSaveModalVisible(false);
+                      setTemplateName('');
+                    }}
+                  >
+                    <Text style={styles.modalButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.saveButton]}
+                    onPress={saveAsTemplate}
+                  >
+                    <Text style={styles.modalButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Select Template Modal */}
+          <Modal
+            visible={isTemplateModalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setTemplateModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Select Template</Text>
+                <ScrollView style={styles.templateList}>
+                  {templates.map((template) => (
+                    <TouchableOpacity
+                      key={template.id}
+                      style={styles.templateItem}
+                      onPress={() => applyTemplate(template)}
+                    >
+                      <View style={styles.templateItemContent}>
+                        <View style={styles.templateInfo}>
+                          <Text style={styles.templateName}>{template.name}</Text>
+                          <Text style={styles.templateExerciseCount}>
+                            {template.exercises.length} exercises
+                          </Text>
+                        </View>
+                        <View style={styles.templateActions}>
+                          <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={() => handleDeleteTemplate(template.id)}
+                          >
+                            <FontAwesome5 name="trash" size={16} color="#FF0000" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton, { marginTop: 10 }]}
+                  onPress={() => setTemplateModalVisible(false)}
+                >
+                  <Text style={[styles.modalButtonText, { color: 'white' }]}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           <View style={styles.exerciseList}>
             {exercises.map((exercise, index) => (
@@ -389,5 +630,133 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#7743CE', // Same as calendarColor
+  },
+  templateButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: '#F5F5F5',
+  },
+  templateButton: {
+    backgroundColor: '#7743CE',
+    borderRadius: 15,
+    padding: 12,
+    minWidth: 160,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  templateButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '85%',
+    maxHeight: '80%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#7743CE',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#7743CE',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+    fontSize: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  modalButton: {
+    flex: 1,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 45,
+  },
+  saveButton: {
+    backgroundColor: '#7743CE',
+  },
+  cancelButton: {
+    backgroundColor: '#FF6B6B',
+    width: '100%',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  templateList: {
+    maxHeight: 400,
+    marginBottom: 20,
+  },
+  templateItem: {
+    backgroundColor: '#F5F5F5',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  templateItemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  templateInfo: {
+    flex: 1,
+    marginRight: 10,
+  },
+  templateName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7743CE',
+    marginBottom: 4,
+  },
+  templateExerciseCount: {
+    fontSize: 14,
+    color: '#666',
+  },
+  templateActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
