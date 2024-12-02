@@ -34,11 +34,7 @@ export default function AddShownFood({ foodItems }: { foodItems: Array<FoodItem>
                 Serving: {foodItem.servingSize} {foodItem.servingSizeUnit}
               </Text>
             </View>
-            <View>
-              <Text>{foodItem.macros.carbs}</Text>
-              <Text>{foodItem.macros.protein}</Text>
-              <Text>{foodItem.macros.fat}</Text>
-            </View>
+
             <View style={styles.rightcontainer}>
               <View style={{ marginLeft: 5 }}>
                 <FontAwesome5 name="fire-alt" size={24} color="#D91656" />

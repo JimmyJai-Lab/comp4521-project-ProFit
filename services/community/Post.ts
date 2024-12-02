@@ -9,4 +9,5 @@ export default interface Post {
     likes: number;
     comments: Array<String>;
     foodItems: Array<FoodItem>;
+    liked: boolean;
 }
