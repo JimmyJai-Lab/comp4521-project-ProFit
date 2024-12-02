@@ -3,6 +3,7 @@ import { TextInput } from "react-native-paper";
 import * as React from 'react';
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import { router } from 'expo-router';
 
 const AddExercise = ({ item }: { item: any }) => {
     // State for input values
@@ -29,7 +30,7 @@ const AddExercise = ({ item }: { item: any }) => {
             // Get current date
             const currentDate = new Date().toISOString().split('T')[0];
 
-            // Create exercise record
+            // Create exercise record with completedSets initialized to 0
             const exerciseData = {
                 exerciseId: item.id,
                 name: item.name,
@@ -38,6 +39,7 @@ const AddExercise = ({ item }: { item: any }) => {
                 weight: parseFloat(weight),
                 date: currentDate,
                 timestamp: new Date(),
+                completedSets: 0
             };
 
             // Store exercise under user's document
@@ -52,7 +54,15 @@ const AddExercise = ({ item }: { item: any }) => {
             setSet('');
             setWeight('');
 
-            Alert.alert('Success', 'Exercise added successfully');
+            Alert.alert('Success', 'Exercise added successfully', [
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        // Navigate back to fitness screen
+                        router.back();
+                    }
+                }
+            ]);
         } catch (error) {
             console.error('Error adding exercise:', error);
             Alert.alert('Error', 'Failed to add exercise');

@@ -3,11 +3,51 @@ import AddExercise from '@/components/AddExercise';
 import { SearchBar } from '@rneui/themed';
 import React, { useState, useEffect } from 'react';
 import { wgerExerciseService, Exercise } from '@/services/exercise/WgerExerciseService';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 export default function ExerciseAPI() {
   const [search, setSearch] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(false);
+  const [previousExercises, setPreviousExercises] = useState<Exercise[]>([]);
+
+  useEffect(() => {
+    fetchPreviousExercises();
+  }, []);
+
+  const fetchPreviousExercises = async () => {
+    try {
+      const user = auth().currentUser;
+      if (!user) return;
+
+      const snapshot = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('exercises')
+        .orderBy('timestamp', 'desc')
+        .get();
+
+      const uniqueExercises = new Map();
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (!uniqueExercises.has(data.exerciseId)) {
+          uniqueExercises.set(data.exerciseId, {
+            id: data.exerciseId,
+            name: data.name,
+            description: '',
+            category: 0,
+            muscles: [],
+            equipment: []
+          });
+        }
+      });
+
+      setPreviousExercises(Array.from(uniqueExercises.values()));
+    } catch (error) {
+      console.error('Error fetching previous exercises:', error);
+    }
+  };
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -49,25 +89,49 @@ export default function ExerciseAPI() {
         />
       </View>
 
+      {!search && !loading && (
+        <View style={styles.previousExercisesContainer}>
+          <Text style={styles.sectionTitle}>Previously Added Exercises</Text>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {previousExercises.map((exercise) => (
+              <AddExercise
+                key={`previous-${exercise.id}`}
+                item={{
+                  id: exercise.id,
+                  name: exercise.name,
+                  description: exercise.description,
+                  weight: 0,
+                  set: 4,
+                  rep: 10,
+                  checked: false
+                }}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       {loading ? (
         <ActivityIndicator size="large" color="#7743CE" style={styles.loader} />
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {exercises.map((exercise) => (
-            <AddExercise
-              key={exercise.id}
-              item={{
-                id: exercise.id,
-                name: exercise.name,
-                description: exercise.description,
-                weight: 0,
-                set: 4,
-                rep: 10,
-                checked: false
-              }}
-            />
-          ))}
-        </ScrollView>
+        search && (
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {exercises.map((exercise) => (
+              <AddExercise
+                key={exercise.id}
+                item={{
+                  id: exercise.id,
+                  name: exercise.name,
+                  description: exercise.description,
+                  weight: 0,
+                  set: 4,
+                  rep: 10,
+                  checked: false
+                }}
+              />
+            ))}
+          </ScrollView>
+        )
       )}
     </View>
   );
@@ -105,5 +169,16 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingVertical: 10,
+  },
+  previousExercisesContainer: {
+    paddingHorizontal: 10,
+    paddingTop: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#7743CE',
+    marginBottom: 10,
+    paddingHorizontal: 5,
   },
 });
